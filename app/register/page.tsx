@@ -1,44 +1,31 @@
-import { headers, cookies } from "next/headers";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+'use client'
 import styles from "./register.module.css"
+import { useFormState } from 'react-dom'
+import { signUp } from "./formAction";
 
 
-export default async function Login({ searchParams }: { searchParams: { message: string }; }) {
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-    const { data } = await supabase.auth.getUser()
-    const signUp = async (formData: FormData) => {
-        "use server";
+const initialState = {
+    usernameError: "",
+    emailError: "",
+    passwordError: "",
+    registerError: ""
+}
 
-        const origin = headers().get("origin");
-        const email = formData.get("email") as string;
-        const password = formData.get("password") as string;
-        const cookieStore = cookies();
-        const supabase = createClient(cookieStore);
 
-        const { error } = await supabase.auth.signUp({
-            email,
-            password,
-        });
-
-        if (error) {
-            return redirect("/login?message=Could not authenticate user");
-        }
-
-        return redirect("/login?message=Check email to continue sign in process");
-    };
+export default function SignUp() {
+    const [state, formAction] = useFormState(signUp, initialState)
 
     return (
         <div className={styles.container}>
-            <p>{data.user ? data.user.email : "not logged in"}</p>
-            <form className={styles.form_container} action={signUp} >
+            <form className={styles.form_container} action={formAction} >
                 <div className={styles.separator}>
                     <label htmlFor="username">Username</label>
                     <input
                         name="username"
                         placeholder="johnDoe7"
+                        required
                     />
+                    {state?.usernameError !== "" && <span className={styles.error_label}>{state?.usernameError}</span>}
                 </div>
 
                 <div className={styles.separator}>
@@ -48,6 +35,8 @@ export default async function Login({ searchParams }: { searchParams: { message:
                         placeholder="you@example.com"
                         required
                     />
+                    {state?.emailError !== "" && <span className={styles.error_label}>{state?.emailError}</span>}
+
                 </div>
 
                 <div className={styles.separator}>
@@ -58,10 +47,11 @@ export default async function Login({ searchParams }: { searchParams: { message:
                         placeholder="••••••••"
                         required
                     />
+                    {state?.passwordError !== "" && <span className={styles.error_label}>{state?.passwordError}</span>}
                 </div>
 
                 <button>Sign Up</button>
-                {searchParams?.message && <p>{searchParams.message}</p>}
+                {state?.registerError !== "" && <span className={styles.error_label}>{state?.registerError}</span>}
             </form>
         </div>
     );
