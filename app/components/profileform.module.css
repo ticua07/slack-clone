@@ -1,0 +1,23 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.your_bio {
+    resize: none;
+}
+
+.input {
+    font-family: var(--font-inter);
+}
+
+.error_label {
+    color: red;
+    font-size: 12px;
+}
