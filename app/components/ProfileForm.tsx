@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { z } from "zod"
 import { useState } from "react";
-import { findError } from "@/utils/supabase/parseErrors";
+import { findError } from "@/utils/parseErrors";
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
