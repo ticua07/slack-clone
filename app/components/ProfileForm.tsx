@@ -19,22 +19,18 @@ const schema = z.object({
     description: z.string().refine(maxLines, { message: 'Description must be three lines or less' }),
 })
 
-type Errors = {
-    nameError: string,
-    pronounsError: string,
-    descriptionError: string,
-}
-
 const defaultErrors = {
     descriptionError: "",
     nameError: "",
-    pronounsError: ""
+    pronounsError: "",
+    updateError: ""
 }
 
 export default function ProfileForm({ profile }: { profile: Profile }) {
     // TODO: Pass this from parent /profile/page.tsx
     const supabase = createClient()
-    const [errors, setErrors] = useState<Errors>({ ...defaultErrors });
+    const [errors, setErrors] = useState<typeof defaultErrors>({ ...defaultErrors });
+
 
     const saveUserChanges = async (formData: FormData) => {
         const rawFormData = Object.fromEntries(formData.entries())
@@ -43,6 +39,7 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
 
         if (!result.success) {
             setErrors({
+                ...defaultErrors,
                 nameError: findError(result.error.errors, "display_name"),
                 pronounsError: findError(result.error.errors, "pronouns"),
                 descriptionError: findError(result.error.errors, "description"),
@@ -51,7 +48,13 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         }
 
         console.log({ ...profile, ...rawFormData })
-        // supabase.from("profiles").update({ ...profile, ...rawFormData })
+
+        // User is assured to be logged in, because the middleware prevents unauthorized connections to this page
+        const { data: user } = await supabase.auth.getUser()
+        let { error } = await supabase.from("profiles").update({ ...profile, ...rawFormData }).eq("id", user.user?.id as string);
+        if (error) {
+            setErrors({ ...defaultErrors, updateError: "Couldn't not update profile." })
+        }
     }
 
 
@@ -88,8 +91,10 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
                 defaultValue={profile.description || ""}
             />
             {errors.descriptionError && <span className={styles.error_label}>{errors.descriptionError}</span>}
-
             <button className={styles.input}>Save changes</button>
+
+            {errors.updateError && <span className={styles.error_label}>{errors.updateError}</span>}
+
         </form>
     )
 }
