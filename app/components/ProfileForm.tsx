@@ -1,14 +1,12 @@
 'use client'
 
-import { Database } from "@/types/supabase";
 import styles from "./profileform.module.css"
 import { createClient } from "@/utils/supabase/client";
-import { User } from "@supabase/supabase-js";
 import { z } from "zod"
 import { useState } from "react";
 import { findError } from "@/utils/parseErrors";
+import { Profile } from "@/types/types";
 
-type Profile = Database['public']['Tables']['profiles']['Row'];
 
 const MAX_LINES_BIO = 3;
 const maxLines = (data: string) => { return data.split('\n').length <= MAX_LINES_BIO; }

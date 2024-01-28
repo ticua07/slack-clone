@@ -1,13 +1,11 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { Database } from "@/types/supabase";
 import styles from "./profile.module.css"
 import { createClient } from "@/utils/supabase/client";
 import ProfileForm from "../components/ProfileForm";
 import { User } from "@supabase/supabase-js";
-
-type Profile = Database['public']['Tables']['profiles']['Row'];
+import { Profile } from "@/types/types";
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState<Profile | null>(null);
