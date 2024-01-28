@@ -2,6 +2,7 @@
 import styles from "./login.module.css"
 import { useFormState } from 'react-dom'
 import { logIn } from "./formAction";
+import Link from "next/link";
 
 const errors = {
     emailError: "",
@@ -40,6 +41,7 @@ export default function Login() {
 
                 <button>Sign Up</button>
                 {state?.loginError !== "" && <span className={styles.error_label}>{state?.loginError}</span>}
+                <Link href="/register">Or register instead</Link>
             </form>
         </div>
     );
