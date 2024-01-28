@@ -5,9 +5,9 @@ import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import styles from "./main.module.css"
 import { createContext } from "react";
-import Sidebar from "@/components/Sidebar";
+import Sidebar from "@/app/components/Sidebar";
 import { AppContextType, Channel } from "@/types/types";
-import Messages from "@/components/Messages";
+import Messages from "@/app/components/Messages";
 
 export const AppContext = createContext<AppContextType | null>(null)
 
