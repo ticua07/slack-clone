@@ -19,6 +19,7 @@
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
     "encoding": "^0.1.13",
-    "supabase": "^1.136.3"
+    "supabase": "^1.136.3",
+    "standard": "17.1.0"
   }
 }
