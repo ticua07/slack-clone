@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // a cache of 30s should be enough to when messages are loaded
 // we don't repeat the same user info request twice
-const REVALIDATE_TIME = 30
+const REVALIDATE_TIME = 60
 
 const createFetch =
     (options: Pick<RequestInit, "next" | "cache">) =>
