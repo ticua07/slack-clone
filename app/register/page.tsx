@@ -20,8 +20,9 @@ export default function SignUp() {
         <div className={styles.container}>
             <form className={styles.form_container} action={formAction} >
                 <div className={styles.separator}>
-                    <label htmlFor="username">Username</label>
+                    <label className={styles.label} htmlFor="username">Username</label>
                     <input
+                        className={styles.input}
                         name="username"
                         placeholder="johnDoe7"
                         required
@@ -30,8 +31,9 @@ export default function SignUp() {
                 </div>
 
                 <div className={styles.separator}>
-                    <label htmlFor="email">Email</label>
+                    <label className={styles.label} htmlFor="email">Email</label>
                     <input
+                        className={styles.input}
                         name="email"
                         placeholder="you@example.com"
                         required
@@ -41,8 +43,9 @@ export default function SignUp() {
                 </div>
 
                 <div className={styles.separator}>
-                    <label htmlFor="password">Password</label>
+                    <label className={styles.label} htmlFor="password">Password</label>
                     <input
+                        className={styles.input}
                         type="password"
                         name="password"
                         placeholder="••••••••"
@@ -51,9 +54,9 @@ export default function SignUp() {
                     {state?.passwordError !== "" && <span className={styles.error_label}>{state?.passwordError}</span>}
                 </div>
 
-                <button>Sign Up</button>
+                <button className={styles.button}>Sign Up</button>
                 {state?.registerError !== "" && <span className={styles.error_label}>{state?.registerError}</span>}
-                <Link href="/login">Or login instead</Link>
+                <span>Already have an account? <Link className={styles.link} href="/login">Log in</Link></span>
             </form>
         </div>
     );

@@ -58,37 +58,43 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
 
     return (
         <form className={styles.form} action={saveUserChanges}>
-            <label htmlFor="name">Display name</label>
-            <input
-                type="text"
-                name="display_name"
-                id="name"
-                className={styles.input}
-                placeholder="Display name"
-                defaultValue={profile.display_name || profile.username}
-            />
-            {errors.nameError && <span className={styles.error_label}>{errors.nameError}</span>}
+            <div className={styles.separator}>
+                <label className={styles.label} htmlFor="display_name">Display name</label>
+                <input
+                    type="text"
+                    name="display_name"
+                    id="name"
+                    className={styles.input}
+                    placeholder="Display name"
+                    defaultValue={profile.display_name || profile.username}
+                />
+                {errors.nameError && <span className={styles.error_label}>{errors.nameError}</span>}
+            </div>
 
-            <label htmlFor="pronouns">Pronouns</label>
-            <input
-                type="text"
-                name="pronouns"
-                id="pronouns"
-                className={styles.input}
-                placeholder="Add your pronouns"
-                defaultValue={profile.pronouns || ""}
-            />
-            {errors.pronounsError && <span className={styles.error_label}>{errors.pronounsError}</span>}
+            <div className={styles.separator}>
+                <label className={styles.label} htmlFor="pronouns">Pronouns</label>
+                <input
+                    type="text"
+                    name="pronouns"
+                    id="pronouns"
+                    className={styles.input}
+                    placeholder="Add your pronouns"
+                    defaultValue={profile.pronouns || ""}
+                />
+                {errors.pronounsError && <span className={styles.error_label}>{errors.pronounsError}</span>}
+            </div>
 
-            <label htmlFor="pronouns">Description</label>
-            <textarea
-                name="description"
-                placeholder=""
-                id="description"
-                className={`${styles.your_bio} ${styles.input}`}
-                defaultValue={profile.description || ""}
-            />
-            {errors.descriptionError && <span className={styles.error_label}>{errors.descriptionError}</span>}
+            <div className={styles.separator}>
+                <label className={styles.label} htmlFor="pronouns">Description</label>
+                <textarea
+                    name="description"
+                    placeholder=""
+                    id="description"
+                    className={`${styles.your_bio} ${styles.input}`}
+                    defaultValue={profile.description || ""}
+                />
+                {errors.descriptionError && <span className={styles.error_label}>{errors.descriptionError}</span>}
+            </div>
             <button className={styles.input}>Save changes</button>
 
             {errors.updateError && <span className={styles.error_label}>{errors.updateError}</span>}

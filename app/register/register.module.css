@@ -2,15 +2,34 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
 }
 
 .form_container {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: 100%;
     gap: 10px;
-    max-width: 300px;
+    justify-content: center;
+    align-items: center;
+    /* background-color: #282828; */
+    border: 1px solid #aaa;
+    padding: 8rem;
+    border-radius: .25rem;
+}
+
+.label {
+    font-family: unset;
+    font-weight: normal;
+    font-size: 1.5rem;
+    opacity: 87%;
+}
+
+.input {
+    width: 300px;
+    padding: .25rem;
+    font-size: 1rem;
+    font-family: unset;
 }
 
 .separator {
@@ -21,5 +40,16 @@
 
 .error_label {
     color: red;
-    font-size: 12px;
+    font-size: .9rem;
+}
+
+.button {
+    border: none;
+    padding: .75rem;
+    padding-inline: 2rem;
+    border-radius: 5px;
+}
+
+.link {
+    text-decoration: none;
 }

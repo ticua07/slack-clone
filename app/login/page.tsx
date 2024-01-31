@@ -20,6 +20,7 @@ export default function Login() {
                 <div className={styles.separator}>
                     <label htmlFor="email">Email</label>
                     <input
+                        className={styles.input}
                         name="email"
                         placeholder="you@example.com"
                         required
@@ -31,6 +32,7 @@ export default function Login() {
                 <div className={styles.separator}>
                     <label htmlFor="password">Password</label>
                     <input
+                        className={styles.input}
                         type="password"
                         name="password"
                         placeholder="••••••••"
@@ -39,9 +41,9 @@ export default function Login() {
                     {state?.passwordError !== "" && <span className={styles.error_label}>{state?.passwordError}</span>}
                 </div>
 
-                <button>Sign Up</button>
+                <button className={styles.button}>Log In</button>
                 {state?.loginError !== "" && <span className={styles.error_label}>{state?.loginError}</span>}
-                <Link href="/register">Or register instead</Link>
+                <span>Don't have an account? <Link className={styles.link} href="/register">Sign Up</Link></span>
             </form>
         </div>
     );
