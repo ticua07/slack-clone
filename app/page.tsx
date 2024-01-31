@@ -13,7 +13,7 @@ export const AppContext = createContext<AppContextType | null>(null)
 
 export default function Index() {
     const supabase = createClient();
-    const [user, setUser] = useState<User | null>();
+    const [user, setUser] = useState<User>();
     const [channels, setChannels] = useState<Channel[]>([]);
     const [currentChannel, setCurrentChannel] = useState<Channel>();
 
@@ -22,7 +22,7 @@ export default function Index() {
             const { data } = await supabase.auth.getUser();
             const channels = await supabase.from("channels").select("*");
 
-            setUser(data.user)
+            setUser(data.user as User)
             setChannels(channels.data || [])
             setCurrentChannel(channels.data?.[0] || undefined);
         }
@@ -30,7 +30,7 @@ export default function Index() {
     }, [])
 
     return (
-        <AppContext.Provider value={{ channels, currentChannel, setCurrentChannel }}>
+        <AppContext.Provider value={{ channels, user, currentChannel, setCurrentChannel }}>
             <div className={styles.container}>
                 <Sidebar />
                 <Messages />
