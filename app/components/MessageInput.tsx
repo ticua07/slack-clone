@@ -36,7 +36,7 @@ export default function MessageInput() {
     }
     return (
         <form ref={formRef} className={styles.container} action={submitMessage}>
-            <input name="content" className={styles.input} type="text" alt="Message input" />
+            <input name="content" className={styles.input} type="text" placeholder={context?.currentChannel ? `Message #${context?.currentChannel?.channel_name}` : ""} />
         </form>
     )
 }

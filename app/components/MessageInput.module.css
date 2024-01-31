@@ -1,12 +1,15 @@
 .container {
     padding: 5px;
-    height: 40px;
+    height: 50px;
 }
 
 .input {
     border: none;
     width: 100%;
     height: 100%;
-    border-radius: 25px;
-    padding-left: 10px
+    border-radius: 5px;
+    padding-left: 10px;
+    border: 1px solid #aaa;
+    font-family: unset;
+    font-size: 16px;
 }

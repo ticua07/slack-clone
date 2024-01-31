@@ -14,15 +14,23 @@ export default function Sidebar() {
         context?.setCurrentChannel(channel);
     }
 
+    const styleIfActive = (channel_id: String) => {
+        if (channel_id == context?.currentChannel?.channel_id) {
+            return [styles.button, styles.button_active].join(" ");
+        } else {
+            return styles.button
+        }
+    }
+
     return (
         <div className={styles.sidebar}>
             {context?.channels.map(val =>
-                <a
-                    role="button"
+                <button
+                    className={styleIfActive(val.channel_id)}
                     onClick={() => changeChannel(val)}
                     key={val.channel_id}>
-                    {val.channel_name} - {val.description}
-                </a>
+                    #{val.channel_name}
+                </button>
             )}
         </div >
     )

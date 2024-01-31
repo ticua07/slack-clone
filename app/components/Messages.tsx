@@ -48,6 +48,7 @@ export default function Messages() {
 
     return (
         <div className={styles.messages_container}>
+            <Header />
             <div className={styles.messages} ref={message_list}>
                 {
                     messages.length !== 0 ? messages.map(
@@ -70,7 +71,7 @@ function Message({ message }: { message: CombinedMessage }) {
             <img className={styles.pfp} src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=y" alt="profile" />
             <div>
                 <div className={styles.message_data}>
-                    <p>{message.user.display_name}</p>
+                    <p className={styles.name}>{message.user.display_name}</p>
                     <p className={styles.message_date}>{message.created_at}</p>
                 </div>
 
@@ -79,5 +80,20 @@ function Message({ message }: { message: CombinedMessage }) {
                 </p>
             </div>
         </div>
+    )
+}
+
+function Header() {
+    const context = useContext(AppContext)
+
+    return (
+        <>
+            {context?.currentChannel &&
+                <div className={styles.header}>
+                    <p className={styles.title}>#{context?.currentChannel?.channel_name}</p>
+                    <p className={styles.channel_description}>{context?.currentChannel?.description}</p>
+                </div>
+            }
+        </>
     )
 }
