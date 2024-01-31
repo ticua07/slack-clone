@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
 const schema = z.object({
     email: z.string().email(),
@@ -56,5 +57,6 @@ export const logIn = async (_prevState: any, formData: FormData) => {
         }
     }
 
+    return redirect("/")
 
 }
