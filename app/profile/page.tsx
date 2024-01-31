@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import styles from "./profile.module.css"
 import { createClient } from "@/utils/supabase/client";
-import ProfileForm from "../components/ProfileForm";
+import ProfileForm from "../../components/ProfileForm";
 import { User } from "@supabase/supabase-js";
 import { Profile } from "@/types/types";
 

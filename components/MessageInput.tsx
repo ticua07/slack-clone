@@ -3,7 +3,7 @@
 import { z } from "zod";
 import styles from "./MessageInput.module.css"
 import { createClient } from "@/utils/supabase/client";
-import { AppContext } from "../page";
+import { AppContext } from "../app/page";
 import { useContext, useRef } from "react";
 import { Message } from "@/types/types";
 
