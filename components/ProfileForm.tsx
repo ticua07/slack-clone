@@ -3,9 +3,11 @@
 import styles from "./profileform.module.css"
 import { createClient } from "@/utils/supabase/client";
 import { z } from "zod"
-import { useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { findError } from "@/utils/parseErrors";
 import { Profile } from "@/types/types";
+import { User } from "@supabase/supabase-js";
+import { nanoid } from "nanoid";
 
 
 const MAX_LINES_BIO = 3;
@@ -26,9 +28,11 @@ const defaultErrors = {
 
 export default function ProfileForm({ profile }: { profile: Profile }) {
     // TODO: Pass this from parent /profile/page.tsx
+    const pfp = useRef<HTMLImageElement | null>(null);
+    const [image, setImage] = useState<string | null>(null);
     const supabase = createClient()
     const [errors, setErrors] = useState<typeof defaultErrors>({ ...defaultErrors });
-
+    const [user, setUser] = useState<User | null>();
 
     const saveUserChanges = async (formData: FormData) => {
         const rawFormData = Object.fromEntries(formData.entries())
@@ -49,15 +53,59 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
 
         // User is assured to be logged in, because the middleware prevents unauthorized connections to this page
         const { data: user } = await supabase.auth.getUser()
+
         let { error } = await supabase.from("profiles").update({ ...profile, ...rawFormData }).eq("id", user.user?.id as string);
         if (error) {
             setErrors({ ...defaultErrors, updateError: "Couldn't not update profile." })
         }
     }
 
+    useEffect(() => {
+        const getUser = async () => {
+            const { data: user } = await supabase.auth.getUser()
+            setUser(user.user)
+            const { data: files } = await supabase.storage
+                .from('photos')
+                .list(`pfp`, { sortBy: { column: 'created_at', order: 'desc' }, search: `${user.user?.id}` });
+
+            if (files && files?.length > 0) {
+                const latest = files[0]
+                console.log(latest)
+                const img = (await supabase.storage.from("photos").createSignedUrl(`pfp/${latest.name}`, 60 * 24)).data?.signedUrl
+                    || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys";
+                setImage(img)
+
+            }
+        }
+        getUser()
+    }, [])
+
+
+    const changeImg = async (e: ChangeEvent<HTMLInputElement>) => {
+        e.preventDefault()
+        const file = e.currentTarget.files;
+        if (file && file[0] !== null && pfp.current) {
+            console.log(file[0])
+            const random_slug = nanoid(16);
+            pfp.current.src = URL.createObjectURL(file[0])
+            const { data, error } = await supabase.storage.from("photos").upload(`pfp/${user?.id || ""}__${random_slug}`, file[0])
+            if (error) {
+                console.log(error)
+            } else {
+                console.log(data)
+            }
+        }
+    }
 
     return (
         <form className={styles.form} action={saveUserChanges}>
+            <div className={styles.separator}>
+                <div className={styles.pfp_container}>
+                    {image ? <img src={image} ref={pfp} className={styles.pfp} /> : <></>}
+                </div>
+                <input className={styles.imageInput} type="file" accept="image/*" onChange={changeImg} />
+            </div>
+
             <div className={styles.separator}>
                 <label className={styles.label} htmlFor="display_name">Display name</label>
                 <input

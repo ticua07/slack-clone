@@ -12,11 +12,28 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     gap: 10px;
-    /* background-color: #282828; */
     border: 1px solid #aaa;
     padding: 8rem;
     border-radius: .25rem;
+}
+
+.pfp {
+    border-radius: 50%;
+    width: 64px;
+    height: 64px
+}
+
+.pfp_container {
+    padding: 1px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 1px solid #bbb;
 }
 
 .label {
@@ -36,6 +53,7 @@
 .separator {
     width: 100%;
     display: flex;
+    gap: 5px;
     flex-direction: column;
 }
 

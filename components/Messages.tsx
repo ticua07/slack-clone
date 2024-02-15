@@ -6,7 +6,7 @@ import { AppContext } from "@/app/page";
 import { CombinedMessage, Message, Profile } from "@/types/types";
 import MessageInput from "./MessageInput";
 import { createClient } from "@/utils/supabase/client";
-import { User } from "@supabase/supabase-js";
+import { SupabaseClient, User } from "@supabase/supabase-js";
 
 export default function Messages({ isDM }: { isDM: boolean }) {
   const supabase = createClient();
@@ -93,7 +93,7 @@ export default function Messages({ isDM }: { isDM: boolean }) {
       <Header />
       <div className={styles.messages} ref={message_list}>
         {messages.length !== 0 ? (
-          messages.map((val) => <Message key={val.id} message={val} />)
+          messages.map((val) => <Message key={val.id} message={val} supabase={supabase} />)
         ) : (
           <p>Loading messages...</p>
         )}
@@ -105,12 +105,29 @@ export default function Messages({ isDM }: { isDM: boolean }) {
   );
 }
 
-function Message({ message }: { message: CombinedMessage }) {
+function Message({ message, supabase }: { message: CombinedMessage, supabase: SupabaseClient }) {
+  const [image, setImage] = useState<string | null>(null)
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: files } = await supabase.storage
+        .from('photos')
+        .list(`pfp`, { sortBy: { column: 'created_at', order: 'desc' }, search: `${message.user.id}` });
+
+      if (files && files?.length > 0) {
+        const latest = files[0]
+        const img = (await supabase.storage.from("photos").createSignedUrl(`pfp/${latest.name}`, 60 * 24)).data?.signedUrl
+        setImage(img || null)
+
+      }
+    }
+    getUser()
+  }, [])
+
   return (
     <div key={message.id} className={styles.container}>
       <img
         className={styles.pfp}
-        src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=y"
+        src={image || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys"}
         alt="profile"
       />
       <div>
