@@ -3,7 +3,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import styles from "./messages.module.css";
 import { AppContext } from "@/app/page";
-import { CombinedMessage, Message, Profile } from "@/types/types";
+import { AppContextType, CombinedMessage, Message, Profile } from "@/types/types";
 import MessageInput from "./MessageInput";
 import { createClient } from "@/utils/supabase/client";
 import { SupabaseClient, User } from "@supabase/supabase-js";
@@ -14,6 +14,7 @@ export default function Messages({ isDM }: { isDM: boolean }) {
   const context = useContext(AppContext);
   const [messages, setMessages] = useState<CombinedMessage[]>([]);
   const message_list = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchMessages = async () => {
     let res = await fetch(
@@ -22,22 +23,28 @@ export default function Messages({ isDM }: { isDM: boolean }) {
 
     const json = await res.json();
     setMessages(json);
+    setLoading(false)
   };
 
   const fetchDMs = async () => {
-    let { data } = await supabase
+    let query1 = `and(sender_id.eq.${context?.user?.id},sent_to_id.eq.${context?.currentDMChannel})`
+    let query2 = `and(sender_id.eq.${context?.currentDMChannel},sent_to_id.eq.${context?.user?.id})`
+
+
+    let { data, error } = await supabase
       .from("direct_messages")
       .select("*")
-      .or(
-        `sender_id.eq.${context?.user?.id}, sent_to_id.eq.${context?.user?.id}`
-      );
+      .or(`or(${query1},${query2})`)
+
+
 
     let dms: Message[] = data?.map((dm) => ({ ...dm, channel_id: null })) || [];
 
     const dmsWithUserPromise = dms?.map(async (dm) => {
       const user = (await (
-        await fetch(`/api/users?id=${dm.id}`)
+        await fetch(`/api/users?id=${context?.currentDMChannel}`)
       ).json()) as Profile;
+
 
       const combined = { ...dm, user } as CombinedMessage;
       return combined;
@@ -46,6 +53,7 @@ export default function Messages({ isDM }: { isDM: boolean }) {
     const dmsWithUser = await Promise.all(dmsWithUserPromise);
 
     setMessages(dmsWithUser);
+    setLoading(false)
   };
 
   useEffect(() => {
@@ -80,6 +88,7 @@ export default function Messages({ isDM }: { isDM: boolean }) {
     };
 
     getMessages();
+
   }, [context?.currentChannel, context?.isCurrentChannelDM]);
 
   useEffect(() => {
@@ -92,21 +101,23 @@ export default function Messages({ isDM }: { isDM: boolean }) {
     <div className={styles.messages_container}>
       <Header />
       <div className={styles.messages} ref={message_list}>
-        {messages.length !== 0 ? (
-          messages.map((val) => <Message key={val.id} message={val} supabase={supabase} />)
+        {!loading ? (
+          messages.map((val) => <Message key={val.id} message={val} supabase={supabase} context={context} />)
         ) : (
           <p>Loading messages...</p>
         )}
       </div>
       <div>
-        <MessageInput />
+        {context?.isCurrentChannelDM ? <MessageInput isDm={true} /> : <MessageInput isDm={false} />}
       </div>
     </div>
   );
 }
 
-function Message({ message, supabase }: { message: CombinedMessage, supabase: SupabaseClient }) {
+function Message({ message, supabase, context }: { message: CombinedMessage, supabase: SupabaseClient, context: AppContextType | null }) {
   const [image, setImage] = useState<string | null>(null)
+
+
   useEffect(() => {
     const getUser = async () => {
       const { data: files } = await supabase.storage
@@ -132,9 +143,12 @@ function Message({ message, supabase }: { message: CombinedMessage, supabase: Su
       />
       <div>
         <div className={styles.message_data}>
-          <p className={styles.name}>
+          <a className={styles.name} onClick={() => {
+            context?.setIsCurrentChannelDM(true);
+            context?.setCurrentDmChannel(message.sender_id)
+          }}>
             {message.user.display_name || message.user.username}
-          </p>
+          </a>
           <p className={styles.message_date}>{message.created_at}</p>
         </div>
 

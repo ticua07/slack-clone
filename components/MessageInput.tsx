@@ -8,13 +8,14 @@ import { useContext, useRef } from "react";
 import { Message } from "@/types/types";
 
 const schema = z.object({
-    content: z.string()
+    content: z.string().min(1)
 }).required()
 
-export default function MessageInput() {
+export default function MessageInput({ isDm }: { isDm: boolean }) {
     const supabase = createClient()
     const formRef = useRef<HTMLFormElement>(null)
     const context = useContext(AppContext);
+
 
     const submitMessage = async (formData: FormData) => {
         'use client'
@@ -24,14 +25,27 @@ export default function MessageInput() {
         if (!result.success) { return; }
 
         const content = result.data.content
-        const newMessage = {
-            sender_id: context?.user?.id,
-            channel_id: context?.currentChannel?.channel_id,
-            content,
-            is_image: false
+        if (!isDm) {
+            const newMessage = {
+                sender_id: context?.user?.id,
+                channel_id: context?.currentChannel?.channel_id,
+                content,
+                is_image: false
+            }
+            const { error } = await supabase.from("messages").insert(newMessage);
+            console.log(error)
+        } else {
+            console.log(context?.currentDMChannel)
+            const newMessage = {
+                sender_id: context?.user?.id,
+                sent_to_id: context?.currentDMChannel,
+                content,
+                is_image: false,
+            }
+            const { error } = await supabase.from("direct_messages").insert(newMessage)
+            console.log(error);
         }
-        const { error } = await supabase.from("messages").insert(newMessage);
-        console.log(error)
+
         formRef.current?.reset()
     }
     return (

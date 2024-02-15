@@ -16,15 +16,18 @@ export type AppContextType = {
   setCurrentChannel: Dispatch<
     SetStateAction<
       | {
-          channel_id: string;
-          channel_name: string | null;
-          created_at: string;
-          description: string | null;
-        }
+        channel_id: string;
+        channel_name: string | null;
+        created_at: string;
+        description: string | null;
+      }
       | undefined
     >
   >;
   dmChannels: Channel[];
+  setDmChannels: Dispatch<SetStateAction<any[]>>;
   isCurrentChannelDM: boolean;
+  currentDMChannel: any;
+  setCurrentDmChannel: Dispatch<SetStateAction<any>>
   setIsCurrentChannelDM: Dispatch<SetStateAction<boolean>>;
 };
