@@ -42,7 +42,7 @@ export default function Messages({ isDM }: { isDM: boolean }) {
 
     const dmsWithUserPromise = dms?.map(async (dm) => {
       const user = (await (
-        await fetch(`/api/users?id=${context?.currentDMChannel}`)
+        await fetch(`/api/users?id=${dm.sender_id}`)
       ).json()) as Profile;
 
 
@@ -120,16 +120,15 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: files } = await supabase.storage
-        .from('photos')
-        .list(`pfp`, { sortBy: { column: 'created_at', order: 'desc' }, search: `${message.user.id}` });
-
-      if (files && files?.length > 0) {
-        const latest = files[0]
-        const img = (await supabase.storage.from("photos").createSignedUrl(`pfp/${latest.name}`, 60 * 24)).data?.signedUrl
-        setImage(img || null)
-
+      const res = await fetch(`/api/pfp?id=${message.user.id}`)
+      const json = await res.json();
+      if (json.success) {
+        setImage(json.url)
+      } else {
+        setImage(null)
       }
+
+
     }
     getUser()
   }, [])

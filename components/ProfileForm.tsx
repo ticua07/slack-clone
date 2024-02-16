@@ -49,8 +49,6 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
             return;
         }
 
-        console.log({ ...profile, ...rawFormData })
-
         // User is assured to be logged in, because the middleware prevents unauthorized connections to this page
         const { data: user } = await supabase.auth.getUser()
 
@@ -84,10 +82,12 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
     const changeImg = async (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault()
         const file = e.currentTarget.files;
-        if (file && file[0] !== null && pfp.current) {
-            console.log(file[0])
+        if (file && file[0] !== null) {
+
             const random_slug = nanoid(16);
-            pfp.current.src = URL.createObjectURL(file[0])
+            setImage(URL.createObjectURL(file[0]))
+
+
             const { data, error } = await supabase.storage.from("photos").upload(`pfp/${user?.id || ""}__${random_slug}`, file[0])
             if (error) {
                 console.log(error)
