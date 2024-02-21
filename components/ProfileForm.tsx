@@ -1,6 +1,5 @@
 'use client'
 
-import styles from "./profileform.module.css"
 import { createClient } from "@/utils/supabase/client";
 import { z } from "zod"
 import { ChangeEvent, useEffect, useRef, useState } from "react";
@@ -8,6 +7,9 @@ import { findError } from "@/utils/parseErrors";
 import { Profile } from "@/types/types";
 import { User } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUpload } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/navigation";
 
 
 const MAX_LINES_BIO = 3;
@@ -35,6 +37,8 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
     const [image, setImage] = useState<string | null>(null);
     const [errors, setErrors] = useState<typeof defaultErrors>({ ...defaultErrors });
     const [user, setUser] = useState<User | null>();
+    const router = useRouter()
+
 
     const saveUserChanges = async (formData: FormData) => {
         const rawFormData = Object.fromEntries(formData.entries())
@@ -58,6 +62,9 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         if (error) {
             setErrors({ ...defaultErrors, updateError: "Couldn't not update profile." })
         }
+
+        router.replace("/")
+
     }
 
     useEffect(() => {
@@ -99,54 +106,62 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
     }
 
     return (
-        <form className={styles.form} action={saveUserChanges}>
-            <div className={styles.separator}>
-                <div className={styles.pfp_container}>
-                    {image ? <img src={image} ref={pfp} className={styles.pfp} /> : <></>}
-                </div>
-                <input className={styles.imageInput} type="file" accept="image/*" onChange={changeImg} />
+        <form className="flex flex-col items-center justify-center gap-2 p-4 border rounded border-zinc-400" action={saveUserChanges}>
+            <div className="flex flex-col items-center justify-center w-full gap-1">
+                <label className="relative group">
+                    <span className="absolute transition-opacity transform -translate-x-1/2 -translate-y-1/2 opacity-0 top-1/2 left-1/2 group-hover:opacity-100">
+                        <FontAwesomeIcon
+                            style={{ height: "25px", color: "#020202" }}
+                            icon={faUpload}
+                        />
+                    </span>
+                    {image ? <img src={image} ref={pfp} className="rounded-[50%] w-16 h-16 opacity-100 group-hover:opacity-20 transition-opacity" /> : <></>}
+                    <input className="hidden" type="file" accept="image/*" onChange={changeImg} />
+                </label>
             </div>
 
-            <div className={styles.separator}>
-                <label className={styles.label} htmlFor="display_name">Display name</label>
+            <div className="flex flex-col w-full gap-1">
+                <label className="text-lg font-normal text-black" htmlFor="display_name">Display name</label>
                 <input
                     type="text"
                     name="display_name"
                     id="name"
-                    className={styles.input}
+                    className="w-full py-2 pl-2 border rounded border-zinc-500"
                     placeholder="Display name"
                     defaultValue={profile.display_name || profile.username}
                 />
-                {errors.nameError && <span className={styles.error_label}>{errors.nameError}</span>}
+                {errors.nameError && <span className="text-sm text-red-500">{errors.nameError}</span>}
             </div>
 
-            <div className={styles.separator}>
-                <label className={styles.label} htmlFor="pronouns">Pronouns</label>
+            <div className="flex flex-col w-full gap-1">
+                <label className="text-lg font-normal text-black" htmlFor="pronouns">Pronouns</label>
                 <input
                     type="text"
                     name="pronouns"
                     id="pronouns"
-                    className={styles.input}
+                    className="w-full py-2 pl-2 border rounded border-zinc-500"
                     placeholder="Add your pronouns"
                     defaultValue={profile.pronouns || ""}
                 />
-                {errors.pronounsError && <span className={styles.error_label}>{errors.pronounsError}</span>}
+                {errors.pronounsError && <span className="text-sm text-red-500">{errors.pronounsError}</span>}
             </div>
 
-            <div className={styles.separator}>
-                <label className={styles.label} htmlFor="pronouns">Description</label>
+            <div className="flex flex-col w-full gap-1">
+                <label className="text-lg font-normal text-black" htmlFor="pronouns">Description</label>
                 <textarea
                     name="description"
                     placeholder=""
                     id="description"
-                    className={`${styles.your_bio} ${styles.input}`}
+                    className="w-full py-2 pl-2 border rounded resize-none border-zinc-500"
                     defaultValue={profile.description || ""}
                 />
-                {errors.descriptionError && <span className={styles.error_label}>{errors.descriptionError}</span>}
+                {errors.descriptionError && <span className="text-sm text-red-500">{errors.descriptionError}</span>}
             </div>
-            <button className={styles.input}>Save changes</button>
+            <button className="py-2 border rounded w-36 border-zinc-500">Save changes</button>
 
-            {errors.updateError && <span className={styles.error_label}>{errors.updateError}</span>}
+            <span className="text-sm">Changes might take some seconds to propagate!</span>
+
+            {errors.updateError && <span className="text-sm text-red-500">{errors.updateError}</span>}
 
         </form>
     )
