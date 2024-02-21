@@ -75,6 +75,7 @@ export default function Sidebar() {
 function UserDisplay() {
   const context = useContext(AppContext);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [pfp, setPfp] = useState("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=y")
   const supabase = createClient();
   const router = useRouter();
 
@@ -94,6 +95,11 @@ function UserDisplay() {
         .eq("id", context.user?.id || "")
         .single();
       setProfile(data);
+
+      const res = await fetch(`/api/pfp?id=${context.user?.id}`)
+      const json = await res.json()
+      setPfp(json.url)
+
     };
     getData();
   }, [context?.user]);
@@ -103,7 +109,7 @@ function UserDisplay() {
       <div className={styles.data}>
         <img
           className={styles.pfp}
-          src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=y"
+          src={pfp}
         />
         <div className={styles.user_data}>
           {profile?.display_name ? (

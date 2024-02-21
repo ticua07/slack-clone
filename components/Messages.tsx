@@ -101,22 +101,20 @@ export default function Messages({ isDM }: { isDM: boolean }) {
     <div className={styles.messages_container}>
       <Header />
       <div className={styles.messages} ref={message_list}>
-        {!loading ? (
-          messages.map((val) => <Message key={val.id} message={val} supabase={supabase} context={context} />)
-        ) : (
+        {loading ? (
           <p>Loading messages...</p>
-        )}
+        )
+          : messages.map((val) => <Message key={val.id} message={val} supabase={supabase} context={context} />)
+        }
       </div>
-      <div>
-        {context?.isCurrentChannelDM ? <MessageInput isDm={true} /> : <MessageInput isDm={false} />}
-      </div>
+      {context?.isCurrentChannelDM ? <MessageInput isDm={true} /> : <MessageInput isDm={false} />}
     </div>
   );
 }
 
 function Message({ message, supabase, context }: { message: CombinedMessage, supabase: SupabaseClient, context: AppContextType | null }) {
   const [image, setImage] = useState<string | null>(null)
-
+  const [contentImg, setContentImg] = useState<string | null>(null)
 
   useEffect(() => {
     const getUser = async () => {
@@ -128,7 +126,11 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
         setImage(null)
       }
 
-
+      if (message.is_image) {
+        const img = (await supabase.storage.from("photos").createSignedUrl(message.content || "", 60 * 24)).data?.signedUrl
+          || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys";
+        setContentImg(img)
+      }
     }
     getUser()
   }, [])
@@ -151,7 +153,8 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
           <p className={styles.message_date}>{message.created_at}</p>
         </div>
 
-        <p className={styles.message_content}>{message.content}</p>
+        {!message.is_image ? <p className={styles.message_content}>{message.content}</p> : <img className={styles.img} src={contentImg || ""} />}
+
       </div>
     </div>
   );

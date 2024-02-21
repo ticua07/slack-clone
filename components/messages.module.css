@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    height: 100vh;
 }
 
 .container {
@@ -15,7 +16,6 @@
 }
 
 .messages {
-    justify-content: flex-end;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -70,4 +70,8 @@
 .channel_description {
     opacity: 67%;
     font-weight: normal;
+}
+
+.img {
+    max-width: 640px;
 }
