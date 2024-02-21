@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 
     if (files && files?.length > 0) {
         const latest = files[0]
-        const img = (await supabase.storage.from("photos").createSignedUrl(`pfp/${latest.name}`, 60 * 24)).data?.signedUrl
+        const img = (await supabase.storage.from("photos").getPublicUrl(`pfp/${latest.name}`)).data?.publicUrl
         return NextResponse.json({ success: true, url: img });
     }
     return NextResponse.json({ success: false });
