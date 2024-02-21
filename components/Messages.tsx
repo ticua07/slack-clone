@@ -1,7 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useRef, useState } from "react";
-import styles from "./messages.module.css";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AppContext } from "@/app/page";
 import { AppContextType, CombinedMessage, Message, Profile } from "@/types/types";
 import MessageInput from "./MessageInput";
@@ -64,30 +63,16 @@ export default function Messages({ isDM }: { isDM: boolean }) {
     const getMessages = async () => {
       // Fetch DMs or messages based on if we're on a public channel or private conversation
       // After that, listen for changes
-      if (context?.isCurrentChannelDM) {
-        await fetchDMs();
-        supabase
-          .channel("direct_messages")
-          .on(
-            "postgres_changes",
-            { event: "INSERT", schema: "public", table: "direct_messages" },
-            async () => await fetchDMs()
-          )
-          .subscribe();
+      context?.isCurrentChannelDM ? await fetchDMs() : await fetchMessages();
 
-      } else {
-
-        await fetchMessages();
-
-        supabase
-          .channel("messages")
-          .on(
-            "postgres_changes",
-            { event: "INSERT", schema: "public", table: "messages" },
-            async () => await fetchMessages()
-          )
-          .subscribe();
-      }
+      supabase
+        .channel("direct_messages")
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: context?.isCurrentChannelDM ? "direct_messages" : "messages" },
+          async () => await (context?.isCurrentChannelDM ? fetchDMs() : fetchMessages())
+        )
+        .subscribe();
     };
     getMessages();
 
@@ -102,16 +87,17 @@ export default function Messages({ isDM }: { isDM: boolean }) {
     //https://stackoverflow.com/questions/36130760/use-justify-content-flex-end-and-to-have-vertical-scrollbar
     // previously I used justify-content: flex-end to bring the messages to the bottom
     // that overrides the scrollbar so to have messages in the bottom we have to add margin-top: auto to first element
+
     const firstMessage = message_list.current?.childNodes[0];
-    if (firstMessage instanceof HTMLDivElement) {
-      firstMessage.classList.add(styles.first)
+    if (firstMessage instanceof HTMLElement) {
+      firstMessage.classList.add("mt-auto")
     }
   }, [messages]);
 
   return (
-    <section className={styles.messages_container}>
+    <section className="flex flex-col w-full h-screen">
       <Header />
-      <section className={styles.messages} ref={message_list}>
+      <section className="flex flex-col h-full pb-2 pl-2 mt-auto overflow-y-scroll" ref={message_list}>
         {loading ? (
           <p>Loading messages...</p>
         )
@@ -126,6 +112,25 @@ export default function Messages({ isDM }: { isDM: boolean }) {
 function Message({ message, supabase, context }: { message: CombinedMessage, supabase: SupabaseClient, context: AppContextType | null }) {
   const [image, setImage] = useState<string | null>(null)
   const [contentImg, setContentImg] = useState<string | null>(null)
+  const [imgLoading, setImgLoading] = useState(true);
+
+  const getDate = useMemo(() => {
+    const date = new Date(message.created_at)
+    const day = date.getDate()
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear()
+    const hour = date.getHours()
+    const minute = date.getMinutes()
+
+    const formattedDay = day < 10 ? `0${day}` : day
+    const formattedMonth = month < 10 ? `0${month}` : month
+
+    return `${formattedDay}/${formattedMonth}/${year} ${hour}:${minute}`
+  }, [message.created_at])
+
+  const loadingStyle = () => {
+    return `${imgLoading ? "opacity-0 h-64" : "opacity-100 max-h-64"} transition-opacity duration-200`
+  }
 
   useEffect(() => {
     const getUser = async () => {
@@ -147,40 +152,45 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
   }, [])
 
   return (
-    <article key={message.id} className={styles.container}>
+    <article className="flex gap-2 p-1">
       <img
-        className={styles.pfp}
+        className="mt-1 max-w-10 max-h-10 rounded-[50%]"
         src={image || DEFAULT_USER_IMAGE}
         alt="profile"
       />
       <section>
-        <div className={styles.message_data}>
-          <a className={styles.name} onClick={() => {
-            context?.setIsCurrentChannelDM(true);
-            context?.setCurrentDmChannel(message.sender_id)
-          }}>
-            {message.user.display_name || message.user.username}
-          </a>
-          <p className={styles.message_date}>{message.created_at}</p>
+        <div className="flex flex-row items-baseline gap-2">
+          {
+            message.sender_id !== null
+              ? <a className="text-base font-bold" onClick={() => {
+                context?.setIsCurrentChannelDM(true);
+                context?.setCurrentDmChannel(message.sender_id!)
+              }}>{message.user.display_name || message.user.username}</a>
+              : <p className="text-base font-bold">{message.user.display_name || message.user.username}</p>
+          }
+          <p className="text-sm">{getDate}</p>
         </div>
 
-        {!message.is_image ? <p className={styles.message_content}>{message.content}</p> : <img className={styles.img} src={contentImg || ""} />}
-
+        {!message.is_image
+          ? <p className="break-words whitespace-normal">{message.content}</p>
+          : <img className={loadingStyle()} src={contentImg || ""} onLoad={() => setImgLoading(false)} />
+        }
       </section>
     </article>
   );
 }
+
 
 function Header() {
   const context = useContext(AppContext);
 
   return (
     context?.currentChannel && (
-      <nav className={styles.header}>
-        <p className={styles.title}>
+      <nav className="flex items-center h-12 gap-6 pl-2 border-b border-gray-450">
+        <p className="text-xl font-semibold">
           #{context?.currentChannel?.channel_name}
         </p>
-        <p className={styles.channel_description}>
+        <p className="font-normal text-md opacity-80">
           {context?.currentChannel?.description}
         </p>
       </nav>

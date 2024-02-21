@@ -8,6 +8,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileArrowUp, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { nanoid } from "nanoid";
 
+type Message = {
+    content: string,
+    is_image: boolean,
+    sender_id: string,
+    sent_to_id?: string
+    channel_id?: string
+}
+
 const IMAGE_RANDOM_CHARS = 32
 const schema = z.object({
     content: z.string().min(1)
@@ -19,14 +27,26 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
     const context = useContext(AppContext);
 
     const sendMessage = async (content: string, img: boolean) => {
-        const newMessage = {
+        // send message to appropiate db wether we are on DMs or not
+        let newMessage = {
             sender_id: context?.user?.id,
-            channel_id: isDm ? context?.currentDMChannel : context?.currentChannel?.channel_id,
             content,
-            is_image: img,
+            is_image: img
+        } as Message;
+
+        if (!isDm) {
+            newMessage = {
+                ...newMessage,
+                channel_id: context?.currentChannel?.channel_id,
+            }
+        } else {
+            newMessage = {
+                ...newMessage,
+                sent_to_id: context?.currentDMChannel,
+            }
         }
-        const { error } = await supabase.from(isDm ? "direct_messages" : "messages").insert(newMessage);
-        console.log(error)
+        const { error } = await supabase.from(isDm ? "direct_messages" : "messages").insert(newMessage)
+        console.log(error);
     }
 
     const submitMessage = async (formData: FormData) => {
@@ -51,10 +71,11 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
             const name = `content/${random_slug}`
 
             const { error } = await supabase.storage.from("photos").upload(name, file[0])
-            await sendMessage(name, true)
 
             if (error) {
                 console.log(error)
+            } else {
+                await sendMessage(name, true)
             }
         }
     }
