@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+
 export default function Sidebar() {
   const context = useContext(AppContext);
 
@@ -20,7 +21,6 @@ export default function Sidebar() {
     if (channel.channel_id == context?.currentChannel?.channel_id) {
       return;
     }
-
     context?.setCurrentChannel(channel);
     context?.setIsCurrentChannelDM(false);
   };
@@ -29,11 +29,8 @@ export default function Sidebar() {
     if (channel.channel_id == context?.currentChannel?.channel_id) {
       return;
     }
-
-
     context?.setIsCurrentChannelDM(true);
     context?.setCurrentDmChannel(channel.channel_id)
-
   };
 
   const styleIfActive = (channel_id: String) => {
@@ -46,7 +43,8 @@ export default function Sidebar() {
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.sidebar_items}>
+
+      <section className={styles.sidebar_items}>
         {context?.channels.map((val) => (
           <button
             className={styleIfActive(val.channel_id)}
@@ -56,28 +54,33 @@ export default function Sidebar() {
             #{val.channel_name}
           </button>
         ))}
+
         <hr />
+
         {context?.dmChannels.map((val) => (
           <button
             className={styleIfActive(val.channel_id)}
             onClick={() => changeToDM(val)}
             key={val.channel_id}
           >
-            #{val.channel_name}
+            {val.channel_name}
           </button>
         ))}
-      </div>
+      </section>
+
       <UserDisplay />
     </div>
   );
 }
 
+const DEFAULT_USER_IMAGE = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys"
+
 function UserDisplay() {
   const context = useContext(AppContext);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [pfp, setPfp] = useState("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=y")
   const supabase = createClient();
   const router = useRouter();
+  const [pfp, setPfp] = useState(DEFAULT_USER_IMAGE)
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -86,9 +89,8 @@ function UserDisplay() {
 
   useEffect(() => {
     const getData = async () => {
-      if (!context) {
-        return;
-      }
+      if (!context) return;
+
       const { data } = await supabase
         .from("profiles")
         .select("*")
@@ -99,29 +101,30 @@ function UserDisplay() {
       const res = await fetch(`/api/pfp?id=${context.user?.id}`)
       const json = await res.json()
       setPfp(json.url)
-
     };
     getData();
   }, [context?.user]);
 
   return (
-    <div className={styles.user_container}>
+    <section className={styles.user_container}>
       <div className={styles.data}>
         <img
           className={styles.pfp}
           src={pfp}
         />
+
         <div className={styles.user_data}>
           {profile?.display_name ? (
-            <>
+            <div>
               <p className={styles.text}>{profile?.display_name}</p>
               <p className={styles.text_secondary}>{profile?.username}</p>
-            </>
+            </div>
           ) : (
             <p className={styles.text}>{profile?.username}</p>
           )}
         </div>
       </div>
+
       <div className={styles.icons}>
         <button className={styles.logout} onClick={signOut}>
           <FontAwesomeIcon
@@ -129,6 +132,7 @@ function UserDisplay() {
             icon={faArrowRightFromBracket}
           />
         </button>
+
         <Link href="/profile">
           <FontAwesomeIcon
             style={{ height: "25px", color: "#aaa" }}
@@ -136,6 +140,6 @@ function UserDisplay() {
           />
         </Link>
       </div>
-    </div>
+    </section>
   );
 }

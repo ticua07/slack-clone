@@ -5,9 +5,8 @@ import styles from "./MessageInput.module.css"
 import { createClient } from "@/utils/supabase/client";
 import { AppContext } from "../app/page";
 import { ChangeEvent, useContext, useRef } from "react";
-import { Message } from "@/types/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileArrowUp, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faFileArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { nanoid } from "nanoid";
 
 const IMAGE_RANDOM_CHARS = 32
@@ -21,6 +20,7 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
     const context = useContext(AppContext);
 
     const sendMessage = async (content: string, img: boolean) => {
+        // send message to appropiate db wether we are on DMs or not
         if (!isDm) {
             const newMessage = {
                 sender_id: context?.user?.id,
@@ -48,10 +48,9 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
 
         const rawFormData = Object.fromEntries(formData.entries())
         const result = schema.safeParse(rawFormData);
-        if (!result.success) { return; }
+        if (!result.success) return;
 
         const content = result.data.content
-
         await sendMessage(content, false)
 
         formRef.current?.reset()
@@ -59,19 +58,17 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
 
     const uploadImg = async (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault()
+
         const file = e.currentTarget.files;
         if (file && file?.[0] !== null) {
             const random_slug = nanoid(IMAGE_RANDOM_CHARS);
-
             const name = `content/${random_slug}`
 
-            const { data, error } = await supabase.storage.from("photos").upload(name, file[0])
-
+            const { error } = await supabase.storage.from("photos").upload(name, file[0])
             await sendMessage(name, true)
+
             if (error) {
                 console.log(error)
-            } else {
-                console.log(data)
             }
         }
     }

@@ -11,6 +11,8 @@ import { nanoid } from "nanoid";
 
 
 const MAX_LINES_BIO = 3;
+const DEFAULT_USER_IMAGE = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys"
+
 const maxLines = (data: string) => { return data.split('\n').length <= MAX_LINES_BIO; }
 
 const schema = z.object({
@@ -27,10 +29,10 @@ const defaultErrors = {
 }
 
 export default function ProfileForm({ profile }: { profile: Profile }) {
-    // TODO: Pass this from parent /profile/page.tsx
     const pfp = useRef<HTMLImageElement | null>(null);
-    const [image, setImage] = useState<string | null>(null);
     const supabase = createClient()
+
+    const [image, setImage] = useState<string | null>(null);
     const [errors, setErrors] = useState<typeof defaultErrors>({ ...defaultErrors });
     const [user, setUser] = useState<User | null>();
 
@@ -62,17 +64,18 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         const getUser = async () => {
             const { data: user } = await supabase.auth.getUser()
             setUser(user.user)
+
             const { data: files } = await supabase.storage
                 .from('photos')
                 .list(`pfp`, { sortBy: { column: 'created_at', order: 'desc' }, search: `${user.user?.id}` });
 
-            if (files && files?.length > 0) {
+            if (files && files[0]) {
                 const latest = files[0]
-                console.log(latest)
-                const img = (await supabase.storage.from("photos").createSignedUrl(`pfp/${latest.name}`, 60 * 24)).data?.signedUrl
-                    || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys";
-                setImage(img)
 
+                const img = (await supabase.storage.from("photos").createSignedUrl(`pfp/${latest.name}`, 60 * 24)).data?.signedUrl
+                    || DEFAULT_USER_IMAGE;
+
+                setImage(img)
             }
         }
         getUser()
@@ -83,10 +86,8 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         e.preventDefault()
         const file = e.currentTarget.files;
         if (file && file[0] !== null) {
-
             const random_slug = nanoid(16);
             setImage(URL.createObjectURL(file[0]))
-
 
             const { data, error } = await supabase.storage.from("photos").upload(`pfp/${user?.id || ""}__${random_slug}`, file[0])
             if (error) {
