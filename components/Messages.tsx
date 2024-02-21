@@ -176,14 +176,14 @@ function Header() {
 
   return (
     context?.currentChannel && (
-      <section className={styles.header}>
+      <nav className={styles.header}>
         <p className={styles.title}>
           #{context?.currentChannel?.channel_name}
         </p>
         <p className={styles.channel_description}>
           {context?.currentChannel?.description}
         </p>
-      </section>
+      </nav>
     )
   );
 }

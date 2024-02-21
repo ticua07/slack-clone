@@ -42,9 +42,8 @@ export default function Sidebar() {
   };
 
   return (
-    <div className={styles.sidebar}>
-
-      <section className={styles.sidebar_items}>
+    <section className={styles.sidebar}>
+      <article className={styles.sidebar_items}>
         {context?.channels.map((val) => (
           <button
             className={styleIfActive(val.channel_id)}
@@ -66,10 +65,10 @@ export default function Sidebar() {
             {val.channel_name}
           </button>
         ))}
-      </section>
+      </article>
 
       <UserDisplay />
-    </div>
+    </section>
   );
 }
 
@@ -106,7 +105,7 @@ function UserDisplay() {
   }, [context?.user]);
 
   return (
-    <section className={styles.user_container}>
+    <footer className={styles.user_container}>
       <div className={styles.data}>
         <img
           className={styles.pfp}
@@ -140,6 +139,6 @@ function UserDisplay() {
           />
         </Link>
       </div>
-    </section>
+    </footer>
   );
 }
