@@ -1,12 +1,11 @@
 'use client'
 
 import { z } from "zod";
-import styles from "./MessageInput.module.css"
 import { createClient } from "@/utils/supabase/client";
 import { AppContext } from "../app/page";
 import { ChangeEvent, useContext, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileArrowUp } from "@fortawesome/free-solid-svg-icons";
+import { faFileArrowUp, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { nanoid } from "nanoid";
 
 const IMAGE_RANDOM_CHARS = 32
@@ -20,27 +19,14 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
     const context = useContext(AppContext);
 
     const sendMessage = async (content: string, img: boolean) => {
-        // send message to appropiate db wether we are on DMs or not
-        if (!isDm) {
-            const newMessage = {
-                sender_id: context?.user?.id,
-                channel_id: context?.currentChannel?.channel_id,
-                content,
-                is_image: img
-            }
-            const { error } = await supabase.from("messages").insert(newMessage);
-            console.log(error)
-        } else {
-            console.log(context?.currentDMChannel)
-            const newMessage = {
-                sender_id: context?.user?.id,
-                sent_to_id: context?.currentDMChannel,
-                content,
-                is_image: img,
-            }
-            const { error } = await supabase.from("direct_messages").insert(newMessage)
-            console.log(error);
+        const newMessage = {
+            sender_id: context?.user?.id,
+            channel_id: isDm ? context?.currentDMChannel : context?.currentChannel?.channel_id,
+            content,
+            is_image: img,
         }
+        const { error } = await supabase.from(isDm ? "direct_messages" : "messages").insert(newMessage);
+        console.log(error)
     }
 
     const submitMessage = async (formData: FormData) => {
@@ -74,12 +60,16 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
     }
 
     return (
-        <form ref={formRef} className={styles.container} action={submitMessage} >
-            <label className={`${styles.input} ${styles.button}`}>
-                <input type="file" className={styles.file} onChange={uploadImg} />
+        <form ref={formRef} className="flex flex-row p-1 pr-4 h-14 divide-zinc-400" action={submitMessage} >
+            <label className="flex items-center justify-center w-12 h-full border rounded-l-md border-zinc-400">
+                <input type="file" className="hidden" onChange={uploadImg} />
                 <FontAwesomeIcon icon={faFileArrowUp} style={{ height: "25px", color: "#555" }} />
             </label>
-            <input name="content" className={styles.input} type="text" placeholder={context?.currentChannel ? `Message #${context?.currentChannel?.channel_name}` : ""} />
+            <input name="content" className="w-full h-full pl-2 border-t border-b border-zinc-400" type="text" placeholder={context?.currentChannel ? `Message #${context?.currentChannel?.channel_name}` : ""} />
+
+            <button className="flex items-center justify-center w-12 h-full border rounded-r-md border-zinc-400">
+                <FontAwesomeIcon icon={faPaperPlane} style={{ height: "25px", color: "#555" }} />
+            </button>
         </form>
     )
 }
