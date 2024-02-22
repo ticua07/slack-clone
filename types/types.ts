@@ -27,7 +27,7 @@ export type AppContextType = {
   dmChannels: Channel[];
   setDmChannels: Dispatch<SetStateAction<any[]>>;
   isCurrentChannelDM: boolean;
-  currentDMChannel: string;
-  setCurrentDmChannel: Dispatch<SetStateAction<string>>
+  currentDMChannel: Channel | null;
+  setCurrentDmChannel: Dispatch<SetStateAction<Channel | null>>
   setIsCurrentChannelDM: Dispatch<SetStateAction<boolean>>;
 };

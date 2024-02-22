@@ -57,9 +57,10 @@ export default function Index() {
   const [user, setUser] = useState<User>();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [currentChannel, setCurrentChannel] = useState<Channel>();
-  const [currentDMChannel, setCurrentDmChannel] = useState(false);
-  const [isCurrentChannelDM, setIsCurrentChannelDM] = useState(false);
   const [dmChannels, setDmChannels] = useState<any[]>([]);
+  const [isCurrentChannelDM, setIsCurrentChannelDM] = useState(false);
+
+  const [currentDMChannel, setCurrentDmChannel] = useState<Channel | null>(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -80,14 +81,18 @@ export default function Index() {
       value={{
         channels,
         user,
+
         currentChannel,
         setCurrentChannel,
-        setDmChannels,
+
         dmChannels,
+        setDmChannels,
+
         isCurrentChannelDM,
+        setIsCurrentChannelDM,
+
         currentDMChannel,
         setCurrentDmChannel,
-        setIsCurrentChannelDM,
       }}
     >
       <main className={styles.container}>

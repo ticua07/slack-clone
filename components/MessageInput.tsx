@@ -29,22 +29,12 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
     const sendMessage = async (content: string, img: boolean) => {
         // send message to appropiate db wether we are on DMs or not
         let newMessage = {
+            channel_id: context?.currentChannel?.channel_id,
             sender_id: context?.user?.id,
             content,
             is_image: img
         } as Message;
 
-        if (!isDm) {
-            newMessage = {
-                ...newMessage,
-                channel_id: context?.currentChannel?.channel_id,
-            }
-        } else {
-            newMessage = {
-                ...newMessage,
-                sent_to_id: context?.currentDMChannel,
-            }
-        }
         const { error } = await supabase.from(isDm ? "direct_messages" : "messages").insert(newMessage)
         console.log(error);
     }

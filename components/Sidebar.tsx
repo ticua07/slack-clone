@@ -29,8 +29,9 @@ export default function Sidebar() {
     if (channel.channel_id == context?.currentChannel?.channel_id) {
       return;
     }
+
     context?.setIsCurrentChannelDM(true);
-    context?.setCurrentDmChannel(channel.channel_id)
+    context?.setCurrentChannel(channel)
   };
 
   const styleIfActive = (channel_id: String) => {

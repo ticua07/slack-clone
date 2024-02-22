@@ -28,8 +28,8 @@ export default function Messages({ isDM }: { isDM: boolean }) {
   };
 
   const fetchDMs = async () => {
-    let query1 = `and(sender_id.eq.${context?.user?.id},sent_to_id.eq.${context?.currentDMChannel})`
-    let query2 = `and(sender_id.eq.${context?.currentDMChannel},sent_to_id.eq.${context?.user?.id})`
+    let query1 = `and(sender_id.eq.${context?.user?.id},sent_to_id.eq.${context?.currentChannel?.channel_id})`
+    let query2 = `and(sender_id.eq.${context?.currentChannel?.channel_id},sent_to_id.eq.${context?.user?.id})`
 
     let { data, error } = await supabase
       .from("direct_messages")
@@ -84,12 +84,13 @@ export default function Messages({ isDM }: { isDM: boolean }) {
       message_list.current.scrollTop = message_list.current.scrollHeight;
     }
 
-    //https://stackoverflow.com/questions/36130760/use-justify-content-flex-end-and-to-have-vertical-scrollbar
-    // previously I used justify-content: flex-end to bring the messages to the bottom
-    // that overrides the scrollbar so to have messages in the bottom we have to add margin-top: auto to first element
 
     const firstMessage = message_list.current?.childNodes[0];
+
     if (firstMessage instanceof HTMLElement) {
+      //https://stackoverflow.com/questions/36130760/use-justify-content-flex-end-and-to-have-vertical-scrollbar
+      // previously I used justify-content: flex-end to bring the messages to the bottom
+      // that overrides the scrollbar so to have messages in the bottom we have to add margin-top: auto to first element
       firstMessage.classList.add("mt-auto")
     }
   }, [messages]);
@@ -164,7 +165,12 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
             message.sender_id !== null
               ? <a className="text-base font-bold" onClick={() => {
                 context?.setIsCurrentChannelDM(true);
-                context?.setCurrentDmChannel(message.sender_id!)
+                context?.setCurrentChannel({
+                  channel_id: message.sender_id!,
+                  channel_name: message.user.display_name || message.user.username,
+                  description: message.user.description,
+                  created_at: "null"
+                })
               }}>{message.user.display_name || message.user.username}</a>
               : <p className="text-base font-bold">{message.user.display_name || message.user.username}</p>
           }
