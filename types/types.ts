@@ -7,7 +7,7 @@ export type DirectMessage =
   Database["public"]["Tables"]["direct_messages"]["Row"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Message = Database["public"]["Tables"]["messages"]["Row"];
-export type CombinedMessage = Message & { user: Profile };
+export type CombinedMessage = Message & { user: Profile & { pfp: string } };
 
 export type AppContextType = {
   channels: Channel[];
@@ -27,7 +27,5 @@ export type AppContextType = {
   dmChannels: Channel[];
   setDmChannels: Dispatch<SetStateAction<any[]>>;
   isCurrentChannelDM: boolean;
-  currentDMChannel: Channel | null;
-  setCurrentDmChannel: Dispatch<SetStateAction<Channel | null>>
   setIsCurrentChannelDM: Dispatch<SetStateAction<boolean>>;
 };

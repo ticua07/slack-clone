@@ -89,7 +89,7 @@ function UserDisplay() {
 
   useEffect(() => {
     const getData = async () => {
-      if (!context) return;
+      if (!context?.user) return;
 
       const { data } = await supabase
         .from("profiles")

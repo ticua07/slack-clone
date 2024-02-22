@@ -60,7 +60,6 @@ export default function Index() {
   const [dmChannels, setDmChannels] = useState<any[]>([]);
   const [isCurrentChannelDM, setIsCurrentChannelDM] = useState(false);
 
-  const [currentDMChannel, setCurrentDmChannel] = useState<Channel | null>(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -90,9 +89,6 @@ export default function Index() {
 
         isCurrentChannelDM,
         setIsCurrentChannelDM,
-
-        currentDMChannel,
-        setCurrentDmChannel,
       }}
     >
       <main className={styles.container}>

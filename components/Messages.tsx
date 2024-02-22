@@ -105,7 +105,7 @@ export default function Messages({ isDM }: { isDM: boolean }) {
           : messages.map((val) => <Message key={val.id} message={val} supabase={supabase} context={context} />)
         }
       </section>
-      {context?.isCurrentChannelDM ? <MessageInput isDm={true} /> : <MessageInput isDm={false} />}
+      <MessageInput isDm={context?.isCurrentChannelDM!} />
     </section>
   );
 }
@@ -133,30 +133,11 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
     return `${imgLoading ? "opacity-0 h-64" : "opacity-100 max-h-64"} transition-opacity duration-200`
   }
 
-  useEffect(() => {
-    const getUser = async () => {
-      const res = await fetch(`/api/pfp?id=${message.user.id}`)
-      const json = await res.json();
-      if (json.success) {
-        setImage(json.url)
-      } else {
-        setImage(null)
-      }
-
-      if (message.is_image) {
-        const img = (await supabase.storage.from("photos").createSignedUrl(message.content || "", 60 * 24)).data?.signedUrl
-          || DEFAULT_USER_IMAGE;
-        setContentImg(img)
-      }
-    }
-    getUser()
-  }, [])
-
   return (
     <article className="flex gap-2 p-1">
       <img
         className="mt-1 max-w-10 max-h-10 rounded-[50%]"
-        src={image || DEFAULT_USER_IMAGE}
+        src={message.user.pfp || DEFAULT_USER_IMAGE}
         alt="profile"
       />
       <section>

@@ -20,7 +20,6 @@ export async function GET(request: Request) {
 
     const messagesWithUser = await Promise.all(messages.data.map(async (message) => {
         const user = await supabaseCached.from("profiles").select("*").eq("id", message.sender_id as string).single();
-
         if (!user.data) {
             return {
                 // Deleted user placeholder
@@ -29,7 +28,17 @@ export async function GET(request: Request) {
             }
         }
 
-        return { user: user.data, ...message };
+        const { data: files } = await supabase.storage
+            .from('photos')
+            .list(`pfp`, { sortBy: { column: 'created_at', order: 'desc' }, search: `${message.sender_id}` });
+        let imgUrl = "";
+
+        if (files && files?.length > 0) {
+            const latest = files[0]
+            imgUrl = (await supabase.storage.from("photos").getPublicUrl(`pfp/${latest.name}`)).data?.publicUrl
+        }
+
+        return { user: { ...user.data, pfp: imgUrl }, ...message };
     }));
 
     return NextResponse.json(messagesWithUser)
