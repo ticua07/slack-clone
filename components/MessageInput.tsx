@@ -4,9 +4,8 @@ import { z } from "zod";
 import { createClient } from "@/utils/supabase/client";
 import { AppContext } from "../app/page";
 import { ChangeEvent, useContext, useRef } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileArrowUp, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { nanoid } from "nanoid";
+import { Send, Upload } from "lucide-react";
 
 type Message = {
     content: string,
@@ -88,12 +87,12 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
         <form ref={formRef} className="flex flex-row p-1 pr-4 divide-gray-300 h-14" action={submitMessage} >
             <label className="flex items-center justify-center w-12 h-full border border-gray-300 cursor-pointer rounded-l-md ">
                 <input type="file" className="hidden" onChange={uploadImg} />
-                <FontAwesomeIcon icon={faFileArrowUp} style={{ height: "25px", color: "#666" }} />
+                <Upload color="#555" />
             </label>
             <input name="content" className="w-full h-full pl-2 border-t border-b" type="text" placeholder={context?.currentChannel ? `Message #${context?.currentChannel?.channel_name}` : ""} />
 
             <button className="flex items-center justify-center w-12 h-full border border-gray-300 rounded-r-md">
-                <FontAwesomeIcon icon={faPaperPlane} style={{ height: "25px", color: "#666" }} />
+                <Send color="#555" />
             </button>
         </form>
     )

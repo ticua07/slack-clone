@@ -4,13 +4,9 @@ import { useContext, useEffect, useState } from "react";
 import { AppContext } from "@/app/page";
 import { Channel, Profile } from "@/types/types";
 import { createClient } from "@/utils/supabase/client";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faArrowRightFromBracket,
-  faGear,
-} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { LogOut, Settings } from "lucide-react";
 
 
 export default function Sidebar() {
@@ -128,17 +124,11 @@ function UserDisplay() {
 
       <div className="flex items-center justify-center h-16 gap-5">
         <button className="cursor-pointer" onClick={signOut}>
-          <FontAwesomeIcon
-            style={{ height: "25px", color: "#666" }}
-            icon={faArrowRightFromBracket}
-          />
+          <LogOut color="#555" />
         </button>
 
         <Link href="/profile">
-          <FontAwesomeIcon
-            style={{ height: "25px", color: "#666" }}
-            icon={faGear}
-          />
+          <Settings color="#555" />
         </Link>
       </div>
     </footer>

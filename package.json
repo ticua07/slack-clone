@@ -8,11 +8,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.5.1",
-    "@fortawesome/free-solid-svg-icons": "^6.5.1",
-    "@fortawesome/react-fontawesome": "^0.2.0",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
+    "lucide-react": "^0.338.0",
     "nanoid": "^5.0.5",
     "next": "latest",
     "react": "18.2.0",
