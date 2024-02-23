@@ -1,6 +1,5 @@
 "use client";
 
-import styles from "./sidebar.module.css";
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "@/app/page";
 import { Channel, Profile } from "@/types/types";
@@ -35,16 +34,18 @@ export default function Sidebar() {
   };
 
   const styleIfActive = (channel_id: String) => {
+    const buttonStyle = "outline-none border-none text-start text-white py-3 px-4 bg-transparent opacity-90"
+    const activeButtonStyle = "bg-neutral-950"
     if (channel_id == context?.currentChannel?.channel_id) {
-      return [styles.button, styles.button_active].join(" ");
+      return [buttonStyle, activeButtonStyle].join(" ");
     } else {
-      return styles.button;
+      return buttonStyle;
     }
   };
 
   return (
-    <section className={styles.sidebar}>
-      <article className={styles.sidebar_items}>
+    <section className="flex flex-col justify-between w-full h-screen max-w-72 bg-zinc-800 ">
+      <article className="flex flex-col flex-1 w-full">
         {context?.channels.map((val) => (
           <button
             className={styleIfActive(val.channel_id)}
@@ -106,27 +107,27 @@ function UserDisplay() {
   }, [context?.user]);
 
   return (
-    <footer className={styles.user_container}>
-      <div className={styles.data}>
+    <footer className="flex items-center justify-between h-16 px-3 bg-neutral-950">
+      <div className="flex items-center h-16 gap-4">
         <img
-          className={styles.pfp}
+          className="mt-1 max-w-10 max-h-10 rounded-[50%] overflow-hidden"
           src={pfp}
         />
 
-        <div className={styles.user_data}>
+        <div className="flex items-center h-16">
           {profile?.display_name ? (
             <div>
-              <p className={styles.text}>{profile?.display_name}</p>
-              <p className={styles.text_secondary}>{profile?.username}</p>
+              <p className="text-white">{profile?.display_name}</p>
+              <p className="text-white opacity-65">{profile?.username}</p>
             </div>
           ) : (
-            <p className={styles.text}>{profile?.username}</p>
+            <p className="text-white">{profile?.username}</p>
           )}
         </div>
       </div>
 
-      <div className={styles.icons}>
-        <button className={styles.logout} onClick={signOut}>
+      <div className="flex items-center justify-center h-16 gap-5">
+        <button className="cursor-pointer" onClick={signOut}>
           <FontAwesomeIcon
             style={{ height: "25px", color: "#aaa" }}
             icon={faArrowRightFromBracket}
