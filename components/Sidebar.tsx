@@ -34,7 +34,7 @@ export default function Sidebar() {
   };
 
   const styleIfActive = (channel_id: String) => {
-    const buttonStyle = "outline-none border-none text-start px-4 h-9 opacity-70 font-medium"
+    const buttonStyle = "outline-none border-none text-start px-4 h-9 opacity-70 font-medium hover:opacity-90"
     const activeButtonStyle = "bg-gray-100 !opacity-100"
     if (channel_id == context?.currentChannel?.channel_id) {
       return [activeButtonStyle, buttonStyle].join(" ");
@@ -45,7 +45,7 @@ export default function Sidebar() {
 
   return (
     <section className="flex flex-col justify-between w-full h-screen border-r max-w-72 border-zinc-200">
-      <article className="flex flex-col flex-1 w-full">
+      <article className="flex flex-col flex-1 w-full px-1">
         {context?.channels.map((val) => (
           <button
             className={styleIfActive(val.channel_id)}
@@ -129,14 +129,14 @@ function UserDisplay() {
       <div className="flex items-center justify-center h-16 gap-5">
         <button className="cursor-pointer" onClick={signOut}>
           <FontAwesomeIcon
-            style={{ height: "25px", color: "#aaa" }}
+            style={{ height: "25px", color: "#666" }}
             icon={faArrowRightFromBracket}
           />
         </button>
 
         <Link href="/profile">
           <FontAwesomeIcon
-            style={{ height: "25px", color: "#aaa" }}
+            style={{ height: "25px", color: "#666" }}
             icon={faGear}
           />
         </Link>

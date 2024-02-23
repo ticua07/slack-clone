@@ -145,7 +145,7 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
         <div className="flex flex-row items-baseline gap-2 ">
           {
             message.sender_id !== null
-              ? <a className="font-medium opacity-95" onClick={() => {
+              ? <a className="font-bold opacity-95" onClick={() => {
                 context?.setIsCurrentChannelDM(true);
                 context?.setCurrentChannel({
                   channel_id: message.sender_id!,
@@ -154,7 +154,7 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
                   created_at: "null"
                 })
               }}>{message.user.display_name || message.user.username}</a>
-              : <p className="font-bold text-white">{message.user.display_name || message.user.username}</p>
+              : <p className="font-bold">{message.user.display_name || message.user.username}</p>
           }
           <p className="text-sm ">{getDate}</p>
         </div>
