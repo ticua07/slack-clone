@@ -31,14 +31,23 @@ export async function GET(request: Request) {
         const { data: files } = await supabase.storage
             .from('photos')
             .list(`pfp`, { sortBy: { column: 'created_at', order: 'desc' }, search: `${message.sender_id}` });
-        let imgUrl = "";
+
+        let pfpUrl = "";
 
         if (files && files?.length > 0) {
             const latest = files[0]
-            imgUrl = (await supabase.storage.from("photos").getPublicUrl(`pfp/${latest.name}`)).data?.publicUrl
+            pfpUrl = (await supabase.storage.from("photos").getPublicUrl(`pfp/${latest.name}`)).data?.publicUrl
         }
 
-        return { user: { ...user.data, pfp: imgUrl }, ...message };
+        if (message.is_image) {
+            const imgContent = await supabase.storage.from("photos").getPublicUrl(message.content!).data.publicUrl;
+            message = {
+                ...message,
+                content: imgContent,
+            }
+        }
+
+        return { user: { ...user.data, pfp: pfpUrl }, ...message };
     }));
 
     return NextResponse.json(messagesWithUser)

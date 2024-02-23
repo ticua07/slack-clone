@@ -9,7 +9,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 
 const DEFAULT_USER_IMAGE = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys"
 
-export default function Messages({ isDM }: { isDM: boolean }) {
+export default function Messages() {
   const supabase = createClient();
   const context = useContext(AppContext);
   const message_list = useRef<HTMLDivElement>(null);
@@ -111,8 +111,6 @@ export default function Messages({ isDM }: { isDM: boolean }) {
 }
 
 function Message({ message, supabase, context }: { message: CombinedMessage, supabase: SupabaseClient, context: AppContextType | null }) {
-  const [image, setImage] = useState<string | null>(null)
-  const [contentImg, setContentImg] = useState<string | null>(null)
   const [imgLoading, setImgLoading] = useState(true);
 
   const getDate = useMemo(() => {
@@ -160,7 +158,7 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
 
         {!message.is_image
           ? <p className="break-words whitespace-normal">{message.content}</p>
-          : <img className={loadingStyle()} src={contentImg || ""} onLoad={() => setImgLoading(false)} />
+          : <img className={loadingStyle()} src={message.content!} onLoad={() => setImgLoading(false)} />
         }
       </section>
     </article>

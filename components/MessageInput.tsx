@@ -27,7 +27,6 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
     const context = useContext(AppContext);
 
     const sendMessage = async (content: string, img: boolean) => {
-        // send message to appropiate db wether we are on DMs or not
         let newMessage = {
             channel_id: context?.currentChannel?.channel_id,
             sender_id: context?.user?.id,

@@ -93,7 +93,7 @@ export default function Index() {
     >
       <main className={styles.container}>
         <Sidebar />
-        <Messages isDM={isCurrentChannelDM} />
+        <Messages />
       </main>
     </AppContext.Provider>
   );
