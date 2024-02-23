@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AppContext } from "@/app/page";
-import { AppContextType, CombinedMessage, Message, Profile } from "@/types/types";
+import { AppContextType, CombinedMessage } from "@/types/types";
 import MessageInput from "./MessageInput";
 import { createClient } from "@/utils/supabase/client";
 import { SupabaseClient } from "@supabase/supabase-js";
@@ -31,28 +31,10 @@ export default function Messages() {
   };
 
   const fetchDMs = async () => {
-    let query1 = `and(sender_id.eq.${context?.user?.id},sent_to_id.eq.${context?.currentChannel?.channel_id})`
-    let query2 = `and(sender_id.eq.${context?.currentChannel?.channel_id},sent_to_id.eq.${context?.user?.id})`
 
-    let { data, error } = await supabase
-      .from("direct_messages")
-      .select("*")
-      .or(`or(${query1},${query2})`)
-
-    let dms: Message[] = data?.map((dm) => ({ ...dm, channel_id: null })) || [];
-
-    const dmsWithUserPromise = dms?.map(async (dm) => {
-      const user = (await (
-        await fetch(`/api/users?id=${dm.sender_id}`)
-      ).json()) as Profile;
-
-      const combined = { ...dm, user } as CombinedMessage;
-      return combined;
-    });
-
-    const dmsWithUser = await Promise.all(dmsWithUserPromise);
-
-    setMessages(dmsWithUser);
+    let res = await fetch(`/api/dms?me=${context?.user!.id}&other=${context?.currentChannel?.channel_id}`)
+    let messages: CombinedMessage[] = await res.json()
+    setMessages(messages);
     setLoading(false)
   };
 
@@ -98,6 +80,8 @@ export default function Messages() {
     }
   }, [messages]);
 
+  console.log(messages)
+
   return (
     <section className="flex flex-col w-full h-screen">
       <Header />
@@ -134,6 +118,19 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
     return `${imgLoading ? "opacity-0 h-64" : "opacity-100 max-h-64"} transition-opacity duration-200`
   }
 
+
+  const goToDm = () => {
+    if (message.sender_id === context!.user!.id) return;
+
+    context?.setIsCurrentChannelDM(true);
+    context?.setCurrentChannel({
+      channel_id: message.sender_id!,
+      channel_name: message.user.display_name || message.user.username,
+      description: message.user.description,
+      created_at: "null"
+    })
+  }
+
   return (
     <article className="flex gap-2 p-1">
       <img
@@ -145,15 +142,7 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
         <div className="flex flex-row items-baseline gap-2 ">
           {
             message.sender_id !== null
-              ? <a className="font-bold opacity-95" onClick={() => {
-                context?.setIsCurrentChannelDM(true);
-                context?.setCurrentChannel({
-                  channel_id: message.sender_id!,
-                  channel_name: message.user.display_name || message.user.username,
-                  description: message.user.description,
-                  created_at: "null"
-                })
-              }}>{message.user.display_name || message.user.username}</a>
+              ? <a className="font-bold opacity-95" onClick={goToDm}>{message.user.display_name || message.user.username}</a>
               : <p className="font-bold">{message.user.display_name || message.user.username}</p>
           }
           <p className="text-sm ">{getDate}</p>
@@ -196,6 +185,7 @@ const MessageMarkdown = ({ text }: { text: string }) => {
   return <Markdown
     remarkPlugins={[remarkGfm]}
     allowedElements={["p", "a", "em", "strong", "pre"]}
+    unwrapDisallowed={true}
     components={{
       a(props) {
         const { node, children, ...rest } = props

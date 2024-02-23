@@ -30,11 +30,23 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
 
     const sendMessage = async (content: string, img: boolean) => {
         let newMessage = {
-            channel_id: context?.currentChannel?.channel_id,
-            sender_id: context?.user?.id,
             content,
             is_image: img
         } as Message;
+
+        if (isDm) {
+            newMessage = {
+                ...newMessage,
+                sent_to_id: context?.currentChannel!.channel_id,
+                sender_id: context?.user?.id!,
+            }
+        } else {
+            newMessage = {
+                ...newMessage,
+                channel_id: context?.currentChannel!.channel_id,
+                sender_id: context?.user?.id!,
+            }
+        }
 
         const { error } = await supabase.from(isDm ? "direct_messages" : "messages").insert(newMessage)
         console.log(error);
@@ -48,9 +60,10 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
         if (!result.success) return;
 
         const content = result.data.content
-        await sendMessage(content, false)
-
-        formRef.current?.reset()
+        if (content.trim().length > 0) {
+            await sendMessage(content, false)
+            formRef.current?.reset()
+        }
     }
 
     const uploadImg = async (e: ChangeEvent<HTMLInputElement>) => {
