@@ -71,7 +71,7 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
 
     return (
         <form ref={formRef} className="flex flex-row p-1 pr-4 h-14 divide-zinc-400" action={submitMessage} >
-            <label className="flex items-center justify-center w-12 h-full border rounded-l-md border-zinc-400">
+            <label className="flex items-center justify-center w-12 h-full border cursor-pointer rounded-l-md border-zinc-400">
                 <input type="file" className="hidden" onChange={uploadImg} />
                 <FontAwesomeIcon icon={faFileArrowUp} style={{ height: "25px", color: "#555" }} />
             </label>
