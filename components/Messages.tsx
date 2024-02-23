@@ -6,6 +6,9 @@ import { AppContextType, CombinedMessage, Message, Profile } from "@/types/types
 import MessageInput from "./MessageInput";
 import { createClient } from "@/utils/supabase/client";
 import { SupabaseClient } from "@supabase/supabase-js";
+import Markdown from "react-markdown";
+import remarkGfm from 'remark-gfm'
+
 
 const DEFAULT_USER_IMAGE = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys"
 
@@ -139,10 +142,10 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
         alt="profile"
       />
       <section>
-        <div className="flex flex-row items-baseline gap-2">
+        <div className="flex flex-row items-baseline gap-2 ">
           {
             message.sender_id !== null
-              ? <a className="text-base font-bold" onClick={() => {
+              ? <a className="font-medium opacity-95" onClick={() => {
                 context?.setIsCurrentChannelDM(true);
                 context?.setCurrentChannel({
                   channel_id: message.sender_id!,
@@ -151,13 +154,13 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
                   created_at: "null"
                 })
               }}>{message.user.display_name || message.user.username}</a>
-              : <p className="text-base font-bold">{message.user.display_name || message.user.username}</p>
+              : <p className="font-bold text-white">{message.user.display_name || message.user.username}</p>
           }
-          <p className="text-sm">{getDate}</p>
+          <p className="text-sm ">{getDate}</p>
         </div>
 
         {!message.is_image
-          ? <p className="break-words whitespace-normal">{message.content}</p>
+          ? <MessageMarkdown text={message.content!} />
           : <img className={loadingStyle()} src={message.content!} onLoad={() => setImgLoading(false)} />
         }
       </section>
@@ -171,14 +174,40 @@ function Header() {
 
   return (
     context?.currentChannel && (
-      <nav className="flex items-center h-12 gap-6 pl-2 border-b border-gray-450">
-        <p className="text-xl font-semibold">
-          #{context?.currentChannel?.channel_name}
-        </p>
-        <p className="font-normal text-md opacity-80">
+      <nav className="z-10 flex items-center h-12 gap-3 shadow-md py-3divide-gray-700 -x ">
+        {context.isCurrentChannelDM
+          ? <p className="pl-5 text-lg font-semibold">
+            {context?.currentChannel?.channel_name}
+          </p>
+          : <p className="pl-5 text-lg font-semibold">
+            #{context?.currentChannel?.channel_name}
+          </p>
+        }
+        <p className="pl-3 text-base ">
           {context?.currentChannel?.description}
         </p>
       </nav>
     )
   );
+}
+
+
+const MessageMarkdown = ({ text }: { text: string }) => {
+  return <Markdown
+    remarkPlugins={[remarkGfm]}
+    allowedElements={["p", "a", "em", "strong", "pre"]}
+    components={{
+      a(props) {
+        const { node, children, ...rest } = props
+        return <a className="text-blue-600" {...rest}>{children}</a>
+      },
+      p(props) {
+        const { node, children, ...rest } = props
+        return <p className="text-[15px] font-chat break-words whitespace-normal" {...rest} >{children}</p>
+      }
+    }
+    }
+  >
+    {text}
+  </Markdown>
 }

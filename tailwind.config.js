@@ -11,7 +11,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        "slack": "#4A154B"
+        "slack": "#4A154B",
+        "title": "#f2f3f5",
+        zinc: {
+          "750": ""
+        }
+      },
+      fontFamily: {
+        "message": "var(--open-sans)"
       }
     },
   },

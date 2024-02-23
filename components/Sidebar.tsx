@@ -34,17 +34,17 @@ export default function Sidebar() {
   };
 
   const styleIfActive = (channel_id: String) => {
-    const buttonStyle = "outline-none border-none text-start text-white py-3 px-4 bg-transparent opacity-90"
-    const activeButtonStyle = "bg-neutral-950"
+    const buttonStyle = "outline-none border-none text-start px-4 h-9 opacity-70 font-medium"
+    const activeButtonStyle = "bg-gray-100 !opacity-100"
     if (channel_id == context?.currentChannel?.channel_id) {
-      return [buttonStyle, activeButtonStyle].join(" ");
+      return [activeButtonStyle, buttonStyle].join(" ");
     } else {
       return buttonStyle;
     }
   };
 
   return (
-    <section className="flex flex-col justify-between w-full h-screen max-w-72 bg-zinc-800 ">
+    <section className="flex flex-col justify-between w-full h-screen border-r max-w-72 border-zinc-200">
       <article className="flex flex-col flex-1 w-full">
         {context?.channels.map((val) => (
           <button
@@ -107,7 +107,7 @@ function UserDisplay() {
   }, [context?.user]);
 
   return (
-    <footer className="flex items-center justify-between h-16 px-3 bg-neutral-950">
+    <footer className="flex items-center justify-between h-16 px-3 bg-zinc-100">
       <div className="flex items-center h-16 gap-4">
         <img
           className="mt-1 max-w-10 max-h-10 rounded-[50%] overflow-hidden"
@@ -117,11 +117,11 @@ function UserDisplay() {
         <div className="flex items-center h-16">
           {profile?.display_name ? (
             <div>
-              <p className="text-white">{profile?.display_name}</p>
-              <p className="text-white opacity-65">{profile?.username}</p>
+              <p>{profile?.display_name}</p>
+              <p className="opacity-65">{profile?.username}</p>
             </div>
           ) : (
-            <p className="text-white">{profile?.username}</p>
+            <p>{profile?.username}</p>
           )}
         </div>
       </div>

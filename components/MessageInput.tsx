@@ -21,6 +21,8 @@ const schema = z.object({
     content: z.string().min(1)
 }).required()
 
+
+
 export default function MessageInput({ isDm }: { isDm: boolean }) {
     const supabase = createClient()
     const formRef = useRef<HTMLFormElement>(null)
@@ -70,15 +72,15 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
     }
 
     return (
-        <form ref={formRef} className="flex flex-row p-1 pr-4 h-14 divide-zinc-400" action={submitMessage} >
-            <label className="flex items-center justify-center w-12 h-full border cursor-pointer rounded-l-md border-zinc-400">
+        <form ref={formRef} className="flex flex-row p-1 pr-4 divide-gray-300 h-14" action={submitMessage} >
+            <label className="flex items-center justify-center w-12 h-full border border-gray-300 cursor-pointer rounded-l-md ">
                 <input type="file" className="hidden" onChange={uploadImg} />
-                <FontAwesomeIcon icon={faFileArrowUp} style={{ height: "25px", color: "#555" }} />
+                <FontAwesomeIcon icon={faFileArrowUp} style={{ height: "25px", color: "#666" }} />
             </label>
-            <input name="content" className="w-full h-full pl-2 border-t border-b border-zinc-400" type="text" placeholder={context?.currentChannel ? `Message #${context?.currentChannel?.channel_name}` : ""} />
+            <input name="content" className="w-full h-full pl-2 border-t border-b" type="text" placeholder={context?.currentChannel ? `Message #${context?.currentChannel?.channel_name}` : ""} />
 
-            <button className="flex items-center justify-center w-12 h-full border rounded-r-md border-zinc-400">
-                <FontAwesomeIcon icon={faPaperPlane} style={{ height: "25px", color: "#555" }} />
+            <button className="flex items-center justify-center w-12 h-full border border-gray-300 rounded-r-md">
+                <FontAwesomeIcon icon={faPaperPlane} style={{ height: "25px", color: "#666" }} />
             </button>
         </form>
     )
