@@ -8,7 +8,6 @@ import { AppContextType, Channel, DirectMessage, ProfileWithImage } from "@/type
 
 import Sidebar from "@/components/Sidebar";
 import Messages from "@/components/Messages";
-import styles from "./main.module.css";
 
 export const AppContext = createContext<AppContextType | null>(null);
 
@@ -97,7 +96,7 @@ export default function Index() {
         setIsCurrentChannelDM,
       }}
     >
-      <main className={styles.container}>
+      <main className="flex w-full h-full">
         <Sidebar />
         <Messages />
       </main>

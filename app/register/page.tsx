@@ -1,5 +1,5 @@
 'use client'
-import styles from "./register.module.css"
+
 import { useFormState } from 'react-dom'
 import { signUp } from "./formAction";
 import Link from "next/link";
@@ -17,46 +17,46 @@ export default function SignUp() {
     const [state, formAction] = useFormState(signUp, initialState)
 
     return (
-        <div className={styles.container}>
-            <form className={styles.form_container} action={formAction} >
-                <div className={styles.separator}>
-                    <label className={styles.label} htmlFor="username">Username</label>
+        <div className="flex items-center justify-center h-screen">
+            <form className="flex flex-col items-center justify-center gap-2 p-12 border rounded border-zinc-400" action={formAction} >
+                <div className="flex flex-col w-full gap-1">
+                    <label className="text-lg font-normal text-black" htmlFor="username">Username</label>
                     <input
-                        className={styles.input}
+                        className="w-full py-2 pl-2 border rounded border-zinc-500"
                         name="username"
                         placeholder="johnDoe7"
                         required
                     />
-                    {state?.usernameError !== "" && <span className={styles.error_label}>{state?.usernameError}</span>}
+                    {state?.usernameError !== "" && <span className="text-sm text-red-500">{state?.usernameError}</span>}
                 </div>
 
-                <div className={styles.separator}>
-                    <label className={styles.label} htmlFor="email">Email</label>
+                <div className="flex flex-col w-full gap-1">
+                    <label className="text-lg font-normal text-black" htmlFor="email">Email</label>
                     <input
-                        className={styles.input}
+                        className="w-full py-2 pl-2 border rounded border-zinc-500"
                         name="email"
                         placeholder="you@example.com"
                         required
                     />
-                    {state?.emailError !== "" && <span className={styles.error_label}>{state?.emailError}</span>}
+                    {state?.emailError !== "" && <span className="text-sm text-red-500">{state?.emailError}</span>}
 
                 </div>
 
-                <div className={styles.separator}>
-                    <label className={styles.label} htmlFor="password">Password</label>
+                <div className="flex flex-col w-full gap-1">
+                    <label className="text-lg font-normal text-black" htmlFor="password">Password</label>
                     <input
-                        className={styles.input}
+                        className="w-full py-2 pl-2 border rounded border-zinc-500"
                         type="password"
                         name="password"
                         placeholder="••••••••"
                         required
                     />
-                    {state?.passwordError !== "" && <span className={styles.error_label}>{state?.passwordError}</span>}
+                    {state?.passwordError !== "" && <span className="text-sm text-red-500">{state?.passwordError}</span>}
                 </div>
 
-                <button className={styles.button}>Sign Up</button>
-                {state?.registerError !== "" && <span className={styles.error_label}>{state?.registerError}</span>}
-                <span>Already have an account? <Link className={styles.link} href="/login">Log in</Link></span>
+                <button className="w-24 py-2 border rounded border-zinc-500">Sign Up</button>
+                {state?.registerError !== "" && <span className="text-sm text-red-500">{state?.registerError}</span>}
+                <span>Already have an account? <Link className="underline" href="/login">Log in</Link></span>
             </form>
         </div>
     );

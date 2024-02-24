@@ -7,9 +7,8 @@ import { findError } from "@/utils/parseErrors";
 import { Profile } from "@/types/types";
 import { User } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
+import { Upload } from "lucide-react";
 
 
 const MAX_LINES_BIO = 3;
@@ -110,10 +109,7 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
             <div className="flex flex-col items-center justify-center w-full gap-1">
                 <label className="relative group">
                     <span className="absolute transition-opacity transform -translate-x-1/2 -translate-y-1/2 opacity-0 top-1/2 left-1/2 group-hover:opacity-100">
-                        <FontAwesomeIcon
-                            style={{ height: "25px", color: "#020202" }}
-                            icon={faUpload}
-                        />
+                        <Upload color="#222" />
                     </span>
                     {image ? <img src={image} ref={pfp} className="rounded-[50%] w-16 h-16 opacity-100 group-hover:opacity-20 transition-opacity" /> : <></>}
                     <input className="hidden" type="file" accept="image/*" onChange={changeImg} />

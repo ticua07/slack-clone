@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --messages-padding: 10px
-}
-
 html,
 body {
   min-height: 100vh;
