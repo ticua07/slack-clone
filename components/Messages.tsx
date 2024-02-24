@@ -8,6 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 import Markdown from "react-markdown";
 import remarkGfm from 'remark-gfm'
+import { Edit, Trash, Trash2 } from "lucide-react";
 
 
 const DEFAULT_USER_IMAGE = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys"
@@ -102,6 +103,30 @@ export default function Messages() {
 
 function Message({ message, supabase, context }: { message: CombinedMessage, supabase: SupabaseClient, context: AppContextType | null }) {
   const [imgLoading, setImgLoading] = useState(true);
+  const [holdingShift, setHoldingShift] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Shift') {
+        setHoldingShift(true);
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === 'Shift') {
+        console.log("bye")
+        setHoldingShift(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   const getDate = useMemo(() => {
     const date = new Date(message.created_at)
@@ -118,7 +143,7 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
   }, [message.created_at])
 
   const loadingStyle = () => {
-    return `${imgLoading ? "opacity-0 h-64" : "opacity-100 max-h-64"} transition-opacity duration-200`
+    return `${imgLoading ? "opacity-0 aspect-auto" : "opacity-100 aspect-auto object-contain max-h-64"} transition-opacity duration-200`
   }
 
 
@@ -135,7 +160,26 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
   }
 
   return (
-    <article className="flex gap-2 p-1">
+    <article className="relative flex gap-2 p-1 group">
+
+      {holdingShift
+        ?
+        <div className="absolute -translate-x-1/2 invisible left-[90%] group-hover:visible
+          rounded w-24 h-7 bg-zinc-200 shadow-md flex flex-row justify-around"
+        >
+
+          <button className="flex items-center justify-center flex-1 h-full rounded outline-none active:scale-90 hover:bg-zinc-300">
+            <Edit color="#333" />
+          </button>
+          <button className="flex items-center justify-center flex-1 h-full rounded outline-none active:scale-90 hover:bg-zinc-300">
+            <Trash2 color="#f70000" fill="transparent" />
+          </button>
+        </div>
+
+        : <></>
+      }
+
+
       <img
         className="mt-1 max-w-10 max-h-10 rounded-[50%]"
         src={message.user.pfp || DEFAULT_USER_IMAGE}
@@ -153,7 +197,9 @@ function Message({ message, supabase, context }: { message: CombinedMessage, sup
 
         {!message.is_image
           ? <MessageMarkdown text={message.content!} />
-          : <img className={loadingStyle()} src={message.content!} onLoad={() => setImgLoading(false)} />
+          : <a href={message.content!} target="_blank">
+            <img className={loadingStyle()} src={message.content!} onLoad={() => setImgLoading(false)} />
+          </a>
         }
       </section>
     </article>
