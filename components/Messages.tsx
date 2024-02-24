@@ -80,7 +80,10 @@ export default function Messages() {
     }
   }, [messages]);
 
-  console.log(messages)
+
+  const addMessageClientSide = (message: CombinedMessage) => {
+    setMessages(msgs => [...msgs, message])
+  }
 
   return (
     <section className="flex flex-col w-full h-screen">
@@ -92,7 +95,7 @@ export default function Messages() {
           : messages.map((val) => <Message key={val.id} message={val} supabase={supabase} context={context} />)
         }
       </section>
-      <MessageInput isDm={context?.isCurrentChannelDM!} />
+      <MessageInput isDm={context?.isCurrentChannelDM!} addMessageClientSide={addMessageClientSide} />
     </section>
   );
 }

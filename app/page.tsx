@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { createContext } from "react";
-import { AppContextType, Channel, DirectMessage } from "@/types/types";
+import { AppContextType, Channel, DirectMessage, ProfileWithImage } from "@/types/types";
 
 import Sidebar from "@/components/Sidebar";
 import Messages from "@/components/Messages";
@@ -59,11 +59,16 @@ export default function Index() {
   const [currentChannel, setCurrentChannel] = useState<Channel>();
   const [dmChannels, setDmChannels] = useState<any[]>([]);
   const [isCurrentChannelDM, setIsCurrentChannelDM] = useState(false);
-
+  const [profile, setProfile] = useState<ProfileWithImage | null>(null)
 
   useEffect(() => {
     const getData = async () => {
       const { data } = await supabase.auth.getUser();
+
+      const res = await fetch(`/api/users?id=${data.user?.id}`);
+      const json = await res.json();
+      setProfile(json);
+
       const channels = await supabase.from("channels").select("*");
       const dms = await supabase.from("direct_messages").select("*");
 
@@ -80,6 +85,7 @@ export default function Index() {
       value={{
         channels,
         user,
+        profile,
 
         currentChannel,
         setCurrentChannel,

@@ -6,6 +6,7 @@ import { AppContext } from "../app/page";
 import { ChangeEvent, useContext, useRef } from "react";
 import { nanoid } from "nanoid";
 import { Send, Upload } from "lucide-react";
+import { CombinedMessage } from "@/types/types";
 
 type Message = {
     content: string,
@@ -20,12 +21,17 @@ const schema = z.object({
     content: z.string().min(1)
 }).required()
 
+type Props = {
+    isDm: boolean,
+    addMessageClientSide: (message: CombinedMessage) => void
+}
 
 
-export default function MessageInput({ isDm }: { isDm: boolean }) {
+export default function MessageInput({ isDm, addMessageClientSide }: Props) {
     const supabase = createClient()
     const formRef = useRef<HTMLFormElement>(null)
     const context = useContext(AppContext);
+
 
     const sendMessage = async (content: string, img: boolean) => {
         let newMessage = {
@@ -42,11 +48,19 @@ export default function MessageInput({ isDm }: { isDm: boolean }) {
         } else {
             newMessage = {
                 ...newMessage,
-                channel_id: context?.currentChannel!.channel_id,
+                channel_id: context?.currentChannel?.channel_id,
                 sender_id: context?.user?.id!,
             }
-        }
 
+            // add fake message until message gets sent
+            addMessageClientSide({
+                ...newMessage,
+                id: crypto.randomUUID(),
+                channel_id: context?.currentChannel?.channel_id || null,
+                created_at: new Date(Date.now()).toISOString(),
+                user: context?.profile!
+            })
+        }
         const { error } = await supabase.from(isDm ? "direct_messages" : "messages").insert(newMessage)
         console.log(error);
     }

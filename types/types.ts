@@ -7,12 +7,14 @@ export type DirectMessage =
   Database["public"]["Tables"]["direct_messages"]["Row"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Message = Database["public"]["Tables"]["messages"]["Row"];
-export type CombinedMessage = Message & { user: Profile & { pfp: string } };
+export type CombinedMessage = Message & { user: ProfileWithImage };
+export type ProfileWithImage = { user: Profile & { pfp: string } }
 
 export type AppContextType = {
   channels: Channel[];
   currentChannel: Channel | undefined;
   user: User | undefined;
+  profile: ProfileWithImage | null
   setCurrentChannel: Dispatch<
     SetStateAction<
       | {
