@@ -5,10 +5,10 @@ import { AppContext } from "@/app/page";
 import { AppContextType, CombinedMessage } from "@/types/types";
 import MessageInput from "./MessageInput";
 import { createClient } from "@/utils/supabase/client";
-import { SupabaseClient } from "@supabase/supabase-js";
 import Markdown from "react-markdown";
 import remarkGfm from 'remark-gfm'
-import { Edit, Trash, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
+import Spinner from "./Spinner";
 
 
 const DEFAULT_USER_IMAGE = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys"
@@ -41,6 +41,7 @@ export default function Messages() {
 
   useEffect(() => {
     setMessages([]);
+    setLoading(true)
 
     if (context?.currentChannel?.channel_id === undefined) {
       return;
@@ -52,13 +53,14 @@ export default function Messages() {
       context?.isCurrentChannelDM ? await fetchDMs() : await fetchMessages();
 
       supabase
-        .channel("direct_messages")
+        .channel(context?.isCurrentChannelDM ? "direct_messages" : "messages")
         .on(
           "postgres_changes",
           { event: "INSERT", schema: "public", table: context?.isCurrentChannelDM ? "direct_messages" : "messages" },
           async () => await (context?.isCurrentChannelDM ? fetchDMs() : fetchMessages())
         )
         .subscribe();
+      setLoading(false)
     };
     getMessages();
 
@@ -91,9 +93,11 @@ export default function Messages() {
       <Header />
       <section className="flex flex-col h-full pb-2 pl-2 mt-auto overflow-y-scroll" ref={message_list}>
         {loading ? (
-          <p>Loading messages...</p>
+          <section className="flex items-center justify-center w-full h-full">
+            <Spinner />
+          </section>
         )
-          : messages.map((val) => <Message key={val.id} message={val} supabase={supabase} context={context} />)
+          : messages.map((val) => <Message key={val.id} message={val} context={context} />)
         }
       </section>
       <MessageInput isDm={context?.isCurrentChannelDM!} addMessageClientSide={addMessageClientSide} />
@@ -101,7 +105,7 @@ export default function Messages() {
   );
 }
 
-function Message({ message, supabase, context }: { message: CombinedMessage, supabase: SupabaseClient, context: AppContextType | null }) {
+function Message({ message, context }: { message: CombinedMessage, context: AppContextType | null }) {
   const [imgLoading, setImgLoading] = useState(true);
   const [holdingShift, setHoldingShift] = useState(false);
 
