@@ -30,7 +30,7 @@ export default function Sidebar() {
   };
 
   const styleIfActive = (channel_id: String) => {
-    const buttonStyle = "outline-none border-none text-start px-4 h-9 opacity-70 font-medium hover:opacity-90"
+    const buttonStyle = "outline-none border-none text-start px-4 h-12 opacity-70 font-medium hover:opacity-90 hover:bg-gray-100"
     const activeButtonStyle = "bg-gray-100 !opacity-100"
     if (channel_id == context?.currentChannel?.channel_id) {
       return [activeButtonStyle, buttonStyle].join(" ");
@@ -41,7 +41,8 @@ export default function Sidebar() {
 
   return (
     <section className="flex flex-col justify-between w-full h-screen border-r max-w-72 border-zinc-200">
-      <article className="flex flex-col flex-1 w-full px-1">
+      <article className="flex flex-col flex-1 w-full gap-1">
+        <h1 className="pl-4 my-2 text-lg">Canales</h1>
         {context?.channels.map((val) => (
           <button
             className={styleIfActive(val.channel_id)}
@@ -54,6 +55,7 @@ export default function Sidebar() {
 
         <hr />
 
+        <h1 className="pl-4 my-2 text-lg">Mensajes privados</h1>
         {context?.dmChannels.map((val) => (
           <button
             className={styleIfActive(val.channel_id)}
