@@ -107,6 +107,8 @@ export default function Messages() {
 
 function Message({ message, context }: { message: CombinedMessage, context: AppContextType | null }) {
   const [imgLoading, setImgLoading] = useState(true);
+  const [pfpLoading, setPfpLoading] = useState(true);
+
   const [holdingShift, setHoldingShift] = useState(false);
 
   useEffect(() => {
@@ -146,8 +148,9 @@ function Message({ message, context }: { message: CombinedMessage, context: AppC
     return `${formattedDay}/${formattedMonth}/${year} ${hour}:${minute}`
   }, [message.created_at])
 
-  const loadingStyle = () => {
-    return `${imgLoading ? "opacity-0 aspect-auto" : "opacity-100 aspect-auto object-contain max-h-64"} transition-opacity duration-200`
+  const loadingStyle = (val: boolean) => {
+    if (val) return "opacity-0"
+    return "opacity-100 aspect-auto"
   }
 
 
@@ -185,7 +188,8 @@ function Message({ message, context }: { message: CombinedMessage, context: AppC
 
 
       <img
-        className="mt-1 max-w-10 max-h-10 rounded-[50%]"
+        className={`${pfpLoading ? "opacity-0" : "opacity-100"} mt-1 max-w-10 max-h-10 rounded-[50%]`}
+        onLoad={() => setPfpLoading(false)}
         src={message.user.pfp || DEFAULT_USER_IMAGE}
         alt="profile"
       />
@@ -202,7 +206,11 @@ function Message({ message, context }: { message: CombinedMessage, context: AppC
         {!message.is_image
           ? <MessageMarkdown text={message.content!} />
           : <a href={message.content!} target="_blank">
-            <img className={loadingStyle()} src={message.content!} onLoad={() => setImgLoading(false)} />
+            <img
+              className={`${imgLoading ? "opacity-0" : "opacity-100"} aspect-autotransition-opacity duration-200 object-contain max-h-64`}
+              src={message.content!}
+              onLoad={() => setImgLoading(false)}
+            />
           </a>
         }
       </section>
