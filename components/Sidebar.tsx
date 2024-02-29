@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { use, useContext, useEffect, useState } from "react";
 import { AppContext } from "@/app/page";
 import { Channel, Profile } from "@/types/types";
 import { createClient } from "@/utils/supabase/client";
@@ -39,40 +39,63 @@ export default function Sidebar() {
     }
   };
 
+
+
   return (
-    <section className="flex flex-col justify-between w-full h-screen border-r max-w-72 border-zinc-200">
-      <article className="flex flex-col flex-1 w-full gap-1">
-        <h1 className="pl-4 my-2 text-lg">Canales</h1>
-        {context?.channels.map((val) => (
-          <button
-            className={styleIfActive(val.channel_id)}
-            onClick={() => changeChannel(val)}
-            key={val.channel_id}
-          >
-            #{val.channel_name}
+    <>
+      <section className="flex justify-center w-24">
+        {context?.servers.map(el => (
+          <button onClick={() => context?.setCurrentServer(el)}>
+            <ServerDisplay server={el} />
           </button>
         ))}
+      </section>
+      <section className="flex flex-col justify-between w-full h-screen border-r max-w-72 border-zinc-200">
+        <article className="flex flex-col flex-1 w-full gap-1">
+          <h1 className="pl-4 my-2 text-lg">Canales</h1>
+          {context?.channels.map((val) => (
+            <button
+              className={styleIfActive(val.channel_id)}
+              onClick={() => changeChannel(val)}
+              key={val.channel_id}
+            >
+              #{val.channel_name}
+            </button>
+          ))}
 
-        <hr />
+          <hr />
 
-        <h1 className="pl-4 my-2 text-lg">Mensajes privados</h1>
-        {context?.dmChannels.map((val) => (
-          <button
-            className={styleIfActive(val.channel_id)}
-            onClick={() => changeToDM(val)}
-            key={val.channel_id}
-          >
-            {val.channel_name}
-          </button>
-        ))}
-      </article>
+          <h1 className="pl-4 my-2 text-lg">Mensajes privados</h1>
+          {context?.dmChannels.map((val) => (
+            <button
+              className={styleIfActive(val.channel_id)}
+              onClick={() => changeToDM(val)}
+              key={val.channel_id}
+            >
+              {val.channel_name}
+            </button>
+          ))}
+        </article>
 
-      <UserDisplay />
-    </section>
+        <UserDisplay />
+      </section></>
   );
 }
 
 const DEFAULT_USER_IMAGE = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys"
+
+function ServerDisplay({ server }: { server: any }) {
+  if (server.picture === null) {
+    const firstLetters: string[] = server.name.split(" ").slice(0, 2);
+    const serverDisplayName = firstLetters.map(el => el.slice(0, 1)).join("")
+    return <div className="opacity-100 mt-1 w-12 h-12 rounded-[50%]
+      flex justify-center items-center bg-gray-200">
+      {serverDisplayName}
+    </div>
+  } else {
+    // todo
+  }
+}
 
 function UserDisplay() {
   const context = useContext(AppContext);

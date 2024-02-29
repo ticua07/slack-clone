@@ -60,6 +60,9 @@ export default function Index() {
   const [isCurrentChannelDM, setIsCurrentChannelDM] = useState(false);
   const [profile, setProfile] = useState<ProfileWithImage | null>(null)
 
+  const [servers, setServers] = useState([]);
+  const [currentServer, setCurrentServer] = useState<any>();
+
   useEffect(() => {
     const getData = async () => {
       const { data } = await supabase.auth.getUser();
@@ -70,6 +73,13 @@ export default function Index() {
 
       const channels = await supabase.from("channels").select("*");
       const dms = await supabase.from("direct_messages").select("*");
+
+      const serversRes = await fetch("/api/servers")
+      const serversJson = await serversRes.json()
+      setServers(serversJson)
+      if (serversJson.length > 0) {
+        setCurrentServer(serversJson[0])
+      }
 
       setDmChannels(await uniqueDms(dms.data || [], data.user?.id || ""));
       setUser(data.user as User);
@@ -82,6 +92,11 @@ export default function Index() {
   return (
     <AppContext.Provider
       value={{
+        servers,
+        setServers,
+        currentServer,
+        setCurrentServer,
+
         channels,
         user,
         profile,

@@ -11,6 +11,11 @@ export type CombinedMessage = Message & { user: ProfileWithImage };
 export type ProfileWithImage = Profile & { pfp: string }
 
 export type AppContextType = {
+  servers: any[],
+  setServers: Dispatch<SetStateAction<never[]>>;
+  currentServer: any,
+  setCurrentServer: Dispatch<SetStateAction<any>>;
+
   channels: Channel[];
   currentChannel: Channel | undefined;
   user: User | undefined;
