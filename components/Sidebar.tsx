@@ -6,7 +6,7 @@ import { Channel, Profile } from "@/types/types";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, Settings } from "lucide-react";
+import { Inbox, LogOut, Settings } from "lucide-react";
 
 
 export default function Sidebar() {
@@ -44,6 +44,12 @@ export default function Sidebar() {
   return (
     <>
       <section className="flex flex-col items-center w-20 gap-2 pt-2 justify">
+        <button key={"DMs"} className="w-12 h-12" onClick={() => context?.setCurrentServer(null)}>
+          <div className="opacity-100 w-full h-full rounded-[50%]
+              flex justify-center items-center bg-gray-200">
+            <Inbox />
+          </div>
+        </button>
         {context?.servers.map(el => (
           <button key={el.id} className="w-12 h-12" onClick={() => context?.setCurrentServer(el)}>
             <ServerDisplay server={el} />
@@ -52,29 +58,36 @@ export default function Sidebar() {
       </section>
       <section className="flex flex-col justify-between w-full h-screen border-l border-r max-w-72 border-zinc-200">
         <article className="flex flex-col flex-1 w-full gap-1">
-          <h1 className="pl-4 my-2 text-lg">Canales</h1>
-          {context?.channels.map((val) => (
-            <button
-              className={styleIfActive(val.channel_id)}
-              onClick={() => changeChannel(val)}
-              key={val.channel_id}
-            >
-              #{val.channel_name}
-            </button>
-          ))}
+          {context?.currentServer !== null &&
+            <>
+              <h1 className="pl-4 my-2 text-lg">Canales</h1>
+              {context?.channels.map((val) => (
+                <button
+                  className={styleIfActive(val.channel_id)}
+                  onClick={() => changeChannel(val)}
+                  key={val.channel_id}
+                >
+                  #{val.channel_name}
+                </button>
+              ))}
+            </>
+          }
 
-          <hr />
 
-          <h1 className="pl-4 my-2 text-lg">Mensajes privados</h1>
-          {context?.dmChannels.map((val) => (
-            <button
-              className={styleIfActive(val.channel_id)}
-              onClick={() => changeToDM(val)}
-              key={val.channel_id}
-            >
-              {val.channel_name}
-            </button>
-          ))}
+          {context?.currentServer == null &&
+            <>
+              <h1 className="pl-4 my-2 text-lg">Mensajes privados</h1>
+              {context?.dmChannels.map((val) => (
+                <button
+                  className={styleIfActive(val.channel_id)}
+                  onClick={() => changeToDM(val)}
+                  key={val.channel_id}
+                >
+                  {val.channel_name}
+                </button>
+              ))}
+            </>
+          }
         </article>
 
         <UserDisplay />
@@ -93,7 +106,10 @@ function ServerDisplay({ server }: { server: any }) {
       {serverDisplayName}
     </div>
   } else {
-    // todo
+    <div className="opacity-100 w-full h-full rounded-[50%]
+    flex justify-center items-center bg-gray-200">
+      <img src={server.picture} />
+    </div>
   }
 }
 
