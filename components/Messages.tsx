@@ -22,6 +22,11 @@ export default function Messages() {
   const [loading, setLoading] = useState(true);
 
   const fetchMessages = async () => {
+    if (!context?.currentChannel) {
+      setLoading(false);
+      return;
+    }
+
     let res = await fetch(
       `/api/messages?channel_id=${context?.currentChannel?.channel_id}`
     );
@@ -32,6 +37,10 @@ export default function Messages() {
   };
 
   const fetchDMs = async () => {
+    if (!context?.currentChannel) {
+      setLoading(false);
+      return;
+    }
 
     let res = await fetch(`/api/dms?me=${context?.user!.id}&other=${context?.currentChannel?.channel_id}`)
     let messages: CombinedMessage[] = await res.json()
@@ -43,15 +52,19 @@ export default function Messages() {
     setMessages([]);
     setLoading(true)
 
-    if (context?.currentChannel?.channel_id === undefined) {
+    if (!context?.currentChannel) {
+      setLoading(false)
       return;
     }
 
     const getMessages = async () => {
       // Fetch DMs or messages based on if we're on a public channel or private conversation
+      if (!context?.currentChannel) {
+        setLoading(false)
+      }
+
       // After that, listen for changes
       context?.isCurrentChannelDM ? await fetchDMs() : await fetchMessages();
-
       supabase
         .channel(context?.isCurrentChannelDM ? "direct_messages" : "messages")
         .on(
@@ -60,7 +73,7 @@ export default function Messages() {
           async () => await (context?.isCurrentChannelDM ? fetchDMs() : fetchMessages())
         )
         .subscribe();
-      setLoading(false)
+
     };
     getMessages();
 
@@ -92,7 +105,7 @@ export default function Messages() {
     <section className="flex flex-col w-full h-screen">
       <Header />
       <section className="flex flex-col h-full pb-2 pl-2 mt-auto overflow-y-scroll" ref={message_list}>
-        {loading ? (
+        {loading == true ? (
           <section className="flex items-center justify-center w-full h-full">
             <Spinner />
           </section>

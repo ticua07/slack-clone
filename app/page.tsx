@@ -71,20 +71,19 @@ export default function Index() {
       const json = await res.json();
       setProfile(json);
 
-      const channels = await supabase.from("channels").select("*");
+      // const channels = await supabase.from("channels").select("*");
       const dms = await supabase.from("direct_messages").select("*");
 
       const serversRes = await fetch("/api/servers")
       const serversJson = await serversRes.json()
       setServers(serversJson)
-      if (serversJson.length > 0) {
-        setCurrentServer(serversJson[0])
-      }
+      setCurrentServer(null)
 
       setDmChannels(await uniqueDms(dms.data || [], data.user?.id || ""));
       setUser(data.user as User);
-      setChannels(channels.data || []);
-      setCurrentChannel(channels.data?.[0] || undefined);
+
+      // setChannels(channels.data || []);
+      // setCurrentChannel(channels.data?.[0] || undefined);
 
     };
     getData();
