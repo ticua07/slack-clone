@@ -43,14 +43,14 @@ export default function Sidebar() {
 
   return (
     <>
-      <section className="flex justify-center w-24">
+      <section className="flex flex-col items-center w-20 gap-2 pt-2 justify">
         {context?.servers.map(el => (
-          <button onClick={() => context?.setCurrentServer(el)}>
+          <button key={el.id} className="w-12 h-12" onClick={() => context?.setCurrentServer(el)}>
             <ServerDisplay server={el} />
           </button>
         ))}
       </section>
-      <section className="flex flex-col justify-between w-full h-screen border-r max-w-72 border-zinc-200">
+      <section className="flex flex-col justify-between w-full h-screen border-l border-r max-w-72 border-zinc-200">
         <article className="flex flex-col flex-1 w-full gap-1">
           <h1 className="pl-4 my-2 text-lg">Canales</h1>
           {context?.channels.map((val) => (
@@ -88,7 +88,7 @@ function ServerDisplay({ server }: { server: any }) {
   if (server.picture === null) {
     const firstLetters: string[] = server.name.split(" ").slice(0, 2);
     const serverDisplayName = firstLetters.map(el => el.slice(0, 1)).join("")
-    return <div className="opacity-100 mt-1 w-12 h-12 rounded-[50%]
+    return <div className="opacity-100 w-full h-full rounded-[50%]
       flex justify-center items-center bg-gray-200">
       {serverDisplayName}
     </div>

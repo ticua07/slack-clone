@@ -85,9 +85,21 @@ export default function Index() {
       setUser(data.user as User);
       setChannels(channels.data || []);
       setCurrentChannel(channels.data?.[0] || undefined);
+
     };
     getData();
   }, []);
+
+  useEffect(() => {
+    const getData = async () => {
+      if (currentServer?.channels) {
+        const channels = await supabase.from("channels").select("*").eq("channel_id", currentServer.channels);
+        setChannels(channels.data || []);
+        setCurrentChannel(channels.data?.[0] || undefined);
+      }
+    }
+    getData()
+  }, [currentServer])
 
   return (
     <AppContext.Provider
