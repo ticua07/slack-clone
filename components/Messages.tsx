@@ -105,7 +105,7 @@ export default function Messages() {
   );
 }
 
-function Message({ message, context }: { message: CombinedMessage, context: AppContextType | null }) {
+export function Message({ message, context }: { message: CombinedMessage, context: AppContextType | null }) {
   const [imgLoading, setImgLoading] = useState(true);
   const [pfpLoading, setPfpLoading] = useState(true);
 
@@ -190,7 +190,7 @@ function Message({ message, context }: { message: CombinedMessage, context: AppC
       <img
         className={`${pfpLoading ? "opacity-0" : "opacity-100"} mt-1 max-w-10 max-h-10 rounded-[50%]`}
         onLoad={() => setPfpLoading(false)}
-        src={message.user.pfp || DEFAULT_USER_IMAGE}
+        src={message.user.pfp.length > 0 ? message.user.pfp : DEFAULT_USER_IMAGE}
         alt="profile"
       />
       <section>
@@ -200,7 +200,7 @@ function Message({ message, context }: { message: CombinedMessage, context: AppC
               ? <a className="font-bold opacity-95" onClick={goToDm}>{message.user.display_name || message.user.username}</a>
               : <p className="font-bold">{message.user.display_name || message.user.username}</p>
           }
-          <p className="text-sm ">{getDate}</p>
+          <p className="text-sm">{getDate}</p>
         </div>
 
         {!message.is_image
@@ -250,7 +250,7 @@ const MessageMarkdown = ({ text }: { text: string }) => {
     components={{
       a(props) {
         const { node, children, ...rest } = props
-        return <a className="text-blue-600" {...rest}>{children}</a>
+        return <a className="text-[15px] text-blue-600" {...rest}>{children}</a>
       },
       p(props) {
         const { node, children, ...rest } = props
