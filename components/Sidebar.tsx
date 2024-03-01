@@ -2,7 +2,7 @@
 
 import { use, useContext, useEffect, useState } from "react";
 import { AppContext } from "@/app/page";
-import { Channel, Profile } from "@/types/types";
+import { AppContextType, Channel, Profile } from "@/types/types";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -39,26 +39,26 @@ export default function Sidebar() {
     }
   };
 
-
-
   return (
     <>
       <section className="flex flex-col items-center w-20 gap-2 pt-2 justify">
         <button key={"DMs"} className="w-12 h-12" onClick={() => context?.setCurrentServer(null)}>
-          <div className="opacity-100 w-full h-full rounded-[50%]
-              flex justify-center items-center bg-gray-200">
+          <div className={`opacity-100 w-full h-full rounded-[50%] flex justify-center items-center
+            ${context?.currentServer == null ? "bg-gray-300" : "bg-gray-100"}
+          `}>
             <Inbox />
           </div>
         </button>
         {context?.servers.map(el => (
           <button key={el.id} className="w-12 h-12" onClick={() => context?.setCurrentServer(el)}>
-            <ServerDisplay server={el} />
+            <ServerDisplay server={el} context={context} />
           </button>
         ))}
       </section>
+
       <section className="flex flex-col justify-between w-full h-screen border-l border-r max-w-72 border-zinc-200">
         <article className="flex flex-col flex-1 w-full gap-1">
-          {context?.currentServer !== null &&
+          {context?.currentServer && context?.currentServer !== null &&
             <>
               <h1 className="pl-4 my-2 text-lg">Canales</h1>
               {context?.channels.map((val) => (
@@ -97,12 +97,16 @@ export default function Sidebar() {
 
 const DEFAULT_USER_IMAGE = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys"
 
-function ServerDisplay({ server }: { server: any }) {
+function ServerDisplay({ server, context }: { server: any, context: AppContextType | null }) {
   if (server.picture === null) {
     const firstLetters: string[] = server.name.split(" ").slice(0, 2);
     const serverDisplayName = firstLetters.map(el => el.slice(0, 1)).join("")
-    return <div className="opacity-100 w-full h-full rounded-[50%]
-      flex justify-center items-center bg-gray-200">
+    return <div
+      className={
+        `opacity-100 w-full h-full rounded-[50%] flex justify-center items-center
+        ${context?.currentServer && context?.currentServer.id == server.id ? "bg-gray-300" : "bg-gray-100"}`
+      }
+    >
       {serverDisplayName}
     </div>
   } else {
