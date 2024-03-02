@@ -42,7 +42,12 @@ export default function Sidebar() {
   return (
     <>
       <section className="flex flex-col items-center w-20 gap-2 pt-2 justify">
-        <button key={"DMs"} className="w-12 h-12" onClick={() => context?.setCurrentServer(null)}>
+        <button key={"DMs"} className="w-12 h-12" onClick={() => {
+          context?.setCurrentServer(null)
+          context?.setCurrentChannel(undefined)
+          context?.setIsCurrentChannelDM(true);
+
+        }}>
           <div className={`opacity-100 w-full h-full rounded-[50%] flex justify-center items-center
             ${context?.currentServer == null ? "bg-gray-300" : "bg-gray-100"}
           `}>
@@ -50,7 +55,10 @@ export default function Sidebar() {
           </div>
         </button>
         {context?.servers.map(el => (
-          <button key={el.id} className="w-12 h-12" onClick={() => context?.setCurrentServer(el)}>
+          <button key={el.id} className="w-12 h-12" onClick={() => {
+            context?.setCurrentServer(el)
+            context?.setIsCurrentChannelDM(false);
+          }}>
             <ServerDisplay server={el} context={context} />
           </button>
         ))}

@@ -1,3 +1,0 @@
-- Set currentChannel to null when setCurrentServer(null)
-- Set currentChannel to null if currentServer doesn't have any channels (!currentServer.channels.length > 0)
-- Set currentChannel to first channel if currentServers does have 1 or more channels
