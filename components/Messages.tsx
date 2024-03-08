@@ -9,6 +9,8 @@ import Markdown from "react-markdown";
 import remarkGfm from 'remark-gfm'
 import { Edit, Trash2 } from "lucide-react";
 import Spinner from "./Spinner";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { Database } from "@/types/supabase";
 
 
 const DEFAULT_USER_IMAGE = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon&f=ys"
@@ -74,6 +76,19 @@ export default function Messages() {
         )
         .subscribe();
 
+      supabase
+        .channel(context?.isCurrentChannelDM ? "direct_messages" : "messages")
+        .on(
+          "postgres_changes",
+          { event: "DELETE", schema: "public", table: context?.isCurrentChannelDM ? "direct_messages" : "messages" },
+          async (event) => {
+            setMessages(messages => messages.filter(el => el.id !== event.old.id))
+          }
+        )
+        .subscribe();
+
+
+
     };
     getMessages();
 
@@ -110,7 +125,7 @@ export default function Messages() {
             <Spinner />
           </section>
         )
-          : messages.map((val) => <Message key={val.id} message={val} context={context} />)
+          : messages.map((val) => <Message supabase={supabase} key={val.id} message={val} context={context} />)
         }
       </section>
       <MessageInput isDm={context?.isCurrentChannelDM!} addMessageClientSide={addMessageClientSide} />
@@ -118,34 +133,11 @@ export default function Messages() {
   );
 }
 
-export function Message({ message, context }: { message: CombinedMessage, context: AppContextType | null }) {
+export function Message({ message, context, supabase }: { message: CombinedMessage, context: AppContextType | null, supabase: SupabaseClient<Database> }) {
   const [imgLoading, setImgLoading] = useState(true);
   const [pfpLoading, setPfpLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const [holdingShift, setHoldingShift] = useState(false);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Shift') {
-        setHoldingShift(true);
-      }
-    };
-
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.key === 'Shift') {
-        console.log("bye")
-        setHoldingShift(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, []);
 
   const getDate = useMemo(() => {
     const date = new Date(message.created_at)
@@ -161,11 +153,6 @@ export function Message({ message, context }: { message: CombinedMessage, contex
     return `${formattedDay}/${formattedMonth}/${year} ${hour}:${minute}`
   }, [message.created_at])
 
-  const loadingStyle = (val: boolean) => {
-    if (val) return "opacity-0"
-    return "opacity-100 aspect-auto"
-  }
-
 
   const goToDm = () => {
     if (message.sender_id === context!.user!.id) return;
@@ -179,25 +166,30 @@ export function Message({ message, context }: { message: CombinedMessage, contex
     })
   }
 
+  const deleteMessage = async () => {
+    const { status, data, error } = await supabase.from("messages").delete().eq("id", message.id)
+    console.log(`deleted ${message.id}`)
+    console.log(status, data, error)
+  }
+
+  const editMessage = () => {
+    setIsEditing(true)
+  }
+
   return (
     <article className="relative flex gap-2 p-1 group">
 
-      {holdingShift
-        ?
-        <div className="absolute -translate-x-1/2 invisible left-[90%] group-hover:visible
+      <div className="absolute -translate-x-1/2 invisible left-[90%] group-hover:visible
           rounded w-24 h-7 bg-zinc-200 shadow-md flex flex-row justify-around"
-        >
+      >
+        <button onClick={editMessage} className="flex items-center justify-center flex-1 h-full rounded outline-none active:scale-90 hover:bg-zinc-300">
+          <Edit color="#333" />
+        </button>
+        <button onClick={deleteMessage} className="flex items-center justify-center flex-1 h-full rounded outline-none active:scale-90 hover:bg-zinc-300">
+          <Trash2 color="#f70000" fill="transparent" />
+        </button>
 
-          <button className="flex items-center justify-center flex-1 h-full rounded outline-none active:scale-90 hover:bg-zinc-300">
-            <Edit color="#333" />
-          </button>
-          <button className="flex items-center justify-center flex-1 h-full rounded outline-none active:scale-90 hover:bg-zinc-300">
-            <Trash2 color="#f70000" fill="transparent" />
-          </button>
-        </div>
-
-        : <></>
-      }
+      </div>
 
 
       <img
