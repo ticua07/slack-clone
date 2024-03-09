@@ -1,4 +1,3 @@
-import { compareDates } from "@/utils/sortByDate";
 import { createCacheClient } from "@/utils/supabase/cache";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
