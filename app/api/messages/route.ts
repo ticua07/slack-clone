@@ -50,5 +50,5 @@ export async function GET(request: Request) {
         return { user: { ...user.data, pfp: pfpUrl }, ...message };
     }));
 
-    return NextResponse.json(messagesWithUser)
+    return NextResponse.json(messagesWithUser.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()))
 }

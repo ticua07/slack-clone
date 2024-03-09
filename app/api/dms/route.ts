@@ -1,3 +1,4 @@
+import { compareDates } from "@/utils/sortByDate";
 import { createCacheClient } from "@/utils/supabase/cache";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
 
     if (!messages.data) { return NextResponse.json({ success: false }) }
 
-    const messagesWithUser = await Promise.all(messages.data.map(async (message) => {
+    let messagesWithUser = await Promise.all(messages.data.map(async (message) => {
         const user = await supabaseCached.from("profiles").select("*").eq("id", message.sender_id as string).single();
         if (!user.data) {
             return {
@@ -61,5 +62,5 @@ export async function GET(request: Request) {
         return { user: { ...user.data, pfp: pfpUrl }, ...message };
     }));
 
-    return NextResponse.json(messagesWithUser)
+    return NextResponse.json(messagesWithUser.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()))
 }
