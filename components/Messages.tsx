@@ -1,8 +1,8 @@
 "use client";
 
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AppContext } from "@/app/page";
-import { AppContextType, CombinedMessage } from "@/types/types";
+import { AppContextType, CombinedMessage, Message } from "@/types/types";
 import MessageInput from "./MessageInput";
 import { createClient } from "@/utils/supabase/client";
 import Markdown from "react-markdown";
@@ -87,6 +87,20 @@ export default function Messages() {
         )
         .subscribe();
 
+      supabase
+        .channel(context?.isCurrentChannelDM ? "direct_messages" : "messages")
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: context?.isCurrentChannelDM ? "direct_messages" : "messages" },
+          async (event) => {
+            const newMessage = event.new as Message
+
+            setMessages(prev => prev.map(el => (el.id === newMessage.id ? { ...el, ...newMessage } : el)))
+            // setMessages(messages => messages.filter(el => el.id !== event.old.id))
+          }
+        )
+        .subscribe();
+
 
 
     };
@@ -137,6 +151,7 @@ export function Message({ message, context, supabase }: { message: CombinedMessa
   const [imgLoading, setImgLoading] = useState(true);
   const [pfpLoading, setPfpLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const isDM = context?.isCurrentChannelDM ? "direct_messages" : "messages"
 
 
   const getDate = useMemo(() => {
@@ -167,30 +182,61 @@ export function Message({ message, context, supabase }: { message: CombinedMessa
   }
 
   const deleteMessage = async () => {
-    const { status, data, error } = await supabase.from("messages").delete().eq("id", message.id)
+    const { status, data, error } = await supabase.from(isDM).delete().eq("id", message.id)
     console.log(`deleted ${message.id}`)
     console.log(status, data, error)
   }
 
   const editMessage = () => {
-    setIsEditing(true)
+    setIsEditing(prev => !prev)
   }
+  const submitEdit = async (event: FormEvent) => {
+    event.preventDefault()
+    setIsEditing(false)
+
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    const newContent = formData.get("newData")
+    const { error } = await supabase.from(isDM).update({ "content": newContent?.toString() }).eq("id", message.id)
+
+    console.error(error)
+  }
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key == "Escape" && isEditing) {
+        setIsEditing(false)
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isEditing]);
 
   return (
     <article className="relative flex gap-2 p-1 group">
 
-      <div className="absolute -translate-x-1/2 invisible left-[90%] group-hover:visible
-          rounded w-24 h-7 bg-zinc-200 shadow-md flex flex-row justify-around"
-      >
-        <button onClick={editMessage} className="flex items-center justify-center flex-1 h-full rounded outline-none active:scale-90 hover:bg-zinc-300">
-          <Edit color="#333" />
-        </button>
-        <button onClick={deleteMessage} className="flex items-center justify-center flex-1 h-full rounded outline-none active:scale-90 hover:bg-zinc-300">
-          <Trash2 color="#f70000" fill="transparent" />
-        </button>
-
-      </div>
-
+      {
+        message.sender_id === context!.user!.id
+          ? <div
+            className={`absolute -translate-x-1/2 invisible left-[90%] group-hover:visible
+            rounded ${!message.is_image ? "w-24" : "w-12"} h-7 bg-zinc-200 shadow-md flex flex-row justify-around`
+            }
+          >
+            {!message.is_image
+              ? <button onClick={editMessage} className="flex items-center justify-center flex-1 h-full rounded outline-none active:scale-90 hover:bg-zinc-300">
+                <Edit color="#333" />
+              </button>
+              : <></>
+            }
+            <button onClick={deleteMessage} className="flex items-center justify-center flex-1 h-full rounded outline-none active:scale-90 hover:bg-zinc-300">
+              <Trash2 color="#f70000" fill="transparent" />
+            </button>
+          </div>
+          : <></>
+      }
 
       <img
         className={`${pfpLoading ? "opacity-0" : "opacity-100"} mt-1 max-w-10 max-h-10 rounded-[50%]`}
@@ -198,7 +244,7 @@ export function Message({ message, context, supabase }: { message: CombinedMessa
         src={message.user.pfp.length > 0 ? message.user.pfp : DEFAULT_USER_IMAGE}
         alt="profile"
       />
-      <section>
+      <section className="w-full pr-4">
         <div className="flex flex-row items-baseline gap-2 ">
           {
             message.sender_id !== null
@@ -208,15 +254,25 @@ export function Message({ message, context, supabase }: { message: CombinedMessa
           <p className="text-sm">{getDate}</p>
         </div>
 
-        {!message.is_image
-          ? <MessageMarkdown text={message.content!} />
-          : <a href={message.content!} target="_blank">
-            <img
-              className={`${imgLoading ? "opacity-0" : "opacity-100"} aspect-autotransition-opacity duration-200 object-contain max-h-64`}
-              src={message.content!}
-              onLoad={() => setImgLoading(false)}
+        {isEditing
+          ? <form className="w-full" onSubmit={submitEdit}>
+            <input
+              name="newData"
+              type="text"
+              id="newData"
+              className="w-full p-1 border border-gray-300"
+              defaultValue={message.content!}
             />
-          </a>
+          </form>
+          : !message.is_image
+            ? <MessageMarkdown text={message.content!} />
+            : <a href={message.content!} target="_blank">
+              <img
+                className={`${imgLoading ? "opacity-0" : "opacity-100"} aspect-autotransition-opacity duration-200 object-contain max-h-64`}
+                src={message.content!}
+                onLoad={() => setImgLoading(false)}
+              />
+            </a>
         }
       </section>
     </article>
